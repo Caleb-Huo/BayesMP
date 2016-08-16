@@ -16,3 +16,6 @@ R -e "devtools::install_github(\"xiaoguang1988/BayesMP\")"
 library(devtools)
 install_github("xiaoguang1988/BayesMP")
 ```
+
+## release note:
+0.0.0 only contain BayesMP mcmc function.
