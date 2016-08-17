@@ -9,7 +9,7 @@ R package for Bayes Meta Pattern
 First you need R `devtools` package installed.
 * In command line:
 ```
-R -e "devtools::install_github(\"xiaoguang1988/BayesMP")"
+R -e "devtools::install_github(\"xiaoguang1988/BayesMP\")"
 ```
 * In R console
 ```R
@@ -35,4 +35,4 @@ install.packages("BayesMP_0.0.1.tar.gz", repos = NULL, type="source")
 
 
 ## Archived version
-For archived version, please contact the author.
+For archived version, please contact the author (zhh18@pitt.edu).
