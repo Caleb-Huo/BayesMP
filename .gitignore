@@ -34,3 +34,10 @@ vignettes/*.pdf
 
 # Temporary files created by vim
 *.swp
+
+## .so .o library and object files
+*.so
+*.o
+*.rds
+ 
+
