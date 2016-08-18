@@ -3,7 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <math.h>
-#include<iostream>
+#include <iostream>
 #include <stdlib.h>
 #include <R.h>
 #include <Rmath.h>
@@ -169,6 +169,33 @@ public:
 		return(sigma0);
 	}
 
+	void freePara()
+	{
+		indexC * thisIndex;		
+		while(index != NULL){
+			thisIndex = index->right;
+			delete [] index;
+			index = thisIndex;
+		}		
+	}
+
+	
+/*	
+	~para(){
+		cout<<"such index doesn't exist, bug 2"<<endl;		
+		indexC * thisIndex;		
+		cout<<"such index doesn't exist, bug 3"<<endl;		
+		while(index != NULL){
+			cout<<"such index doesn't exist, bug 5"<<endl;			
+			thisIndex = index->right;
+			cout<<"such index doesn't exist, bug 6"<<endl;			
+			delete index;
+			cout<<"such index doesn't exist, bug 7"<<endl;			
+			index = thisIndex;
+			cout<<"such index doesn't exist, bug 8"<<endl;			
+		}
+	}
+*/	
 };
 
 class bayesMP{
@@ -775,18 +802,33 @@ public:
 		cout<<endl;
 	}
 	
+	void freeBayesMP()
+	{
+		para * sparaPointer;
+		para * sparaPointerD;
+		for(int s=0; s<S; s++){
+			sparaPointer = paraObjS[s];
+			sparaPointerD = sparaPointer;
+			while(sparaPointer != NULL){
+				sparaPointer = sparaPointerD->right;
+				sparaPointerD->freePara();
+				delete [] sparaPointerD;
+				sparaPointerD = sparaPointer;		
+			}					
+		}				
+	}
 	
 	~bayesMP(){
 		delete [] Z;
 		delete [] Y;
 		delete [] pi;
 		delete [] delta;
-		delete [] paraObjS;
 		delete [] YHSall;
 		delete [] fileFullRes;
 		delete [] fileHSall;
 		delete [] fileAveCom;
 		delete [] aveComponent;		
+		delete [] paraObjS;		
 	}
 	
 	
@@ -810,6 +852,7 @@ void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha,
 	if(*HSall==1){mcmcobj->outputHSall(mcmcobj->GetHSallFileame());}
 	if(*aveCom==1){mcmcobj->outputAveCom(mcmcobj->GetAveComFileame());}
 		
+	mcmcobj->freeBayesMP();
 	delete mcmcobj;
 		
 }

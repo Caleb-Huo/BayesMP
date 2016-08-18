@@ -1,7 +1,7 @@
 Package: BayesMP
 Type: Package
 Title: An R package perform BayesMP
-Version: 0.0.1
+Version: 0.0.2
 Date: 2015-08-16
 Author: Zhiguang Huo
 Maintainer: Zhiguang Huo <zhh18@pitt.edu>
