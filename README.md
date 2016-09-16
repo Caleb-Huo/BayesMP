@@ -19,14 +19,14 @@ install_github("xiaoguang1988/BayesMP")
 
 
 ## Install This Package by downloading the package manually
-First downlowd the R package "https://github.com/xiaoguang1988/BayesMP/blob/master/release/BayesMP_0.0.2.tar.gz"
+First downlowd the latest R package "https://github.com/Caleb-Huo/BayesMP/releases"
 * In command line:
 ```
-R CMD INSTALL BayesMP_0.0.1.tar.gz
+R CMD INSTALL BayesMP-0.0.3.tar.gz
 ```
 * In R console
 ```R
-install.packages("BayesMP_0.0.1.tar.gz", repos = NULL, type="source")
+install.packages("BayesMP-0.0.3.tar.gz", repos = NULL, type="source")
 ```
 
 ## release note:
