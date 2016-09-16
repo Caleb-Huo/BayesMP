@@ -710,7 +710,6 @@ public:
 			poolY[i] = sparaPointer->getMembership();
 			
 			int n = sparaPointer->GetN();
-			double sumZ = sparaPointer->GetSumZ();
 			double postmu = sparaPointer->Getpostmu();
 			double postsd = sparaPointer->Getpostsd();			
 					
