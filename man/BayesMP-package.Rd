@@ -52,7 +52,7 @@ niter <- 100
 burnin <- 50
 nsample <- niter - burnin
 
-mcmc(Z, estGamma, niter=niter, burnin=burnin)
+mcmc(Z, estGamma, niter=niter, burnin=burnin, trunc=0.1)
 
 HSallRes <- read.table('BayesMP_mcmcHSall.txt')
 

@@ -66,7 +66,7 @@ w <- locfdr(Z, plot=0)
 estGamma <- 1 - w$fp0["mlest", "p0"]
 estMu <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "delta"])
 estSigma <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "sigma"])
-mcmc(Z, estGamma)
+mcmc(Z, estGamma, trunc=0.1)
 }
 \author{
 Zhiguang Huo
