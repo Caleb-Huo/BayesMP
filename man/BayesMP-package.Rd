@@ -44,9 +44,9 @@ set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 G <- nrow(Z)
-delta <- 0.4
-nullProp <- estimateNull_Efron_delta(Z, delta)
-estGamma <- mean(1 - nullProp) * G
+
+w <- locfdr(Z, plot=0)
+estGamma <- 1 - w$fp0["mlest", "p0"]
 
 niter <- 100
 burnin <- 50

@@ -202,26 +202,30 @@ class bayesMP{
 	// dimension variables G: number of genes. S: number of studies.
 	int G, S;
 	// Z: observed Z statistics
-	double *Z;
+	//double *Z;
+	std::vector<double> Z;
 	// gamma: prior for pi_g; beta: prior for delta_g; alpha: hyperparameter for DP; mu0: mean para for G0; sigma0: sd para for G0; sigma: sd for emission;
 	double gamma, beta, alpha, mu0, sigma0, sigma, trunc;
+	int countAcceptGamma = 0;
 	// pi: prob gene g to be DE. delta: prob d DE gene to be positive.
-	double *pi, *delta;
-	// record average number of component
-	double *aveComponent;	
+	std::vector<double> pi;
+	std::vector<double> delta;
+	//double *pi, *delta;
 	// Y: latent variable to be infered.
-	int *Y;
+	std::vector<int> Y;
+	//int *Y;
 	// whether directly output HSind result and HSall result
-	int fullRes, HSall, aveCom;
+	int fullRes, HSall;
 	// number of mcmc iterations.
 	int niter, burnin;
 	// current iter
 	int thisIter;
 	char * fileFullRes;
 	char * fileHSall;
-	char * fileAveCom;
+	double MHsd = 0.1;
 	
-	int *YHSall;
+	std::vector<int> YHSall;
+	//int *YHSall;
 	ofstream myStream;	
 	default_random_engine generator;
 	
@@ -233,6 +237,7 @@ class bayesMP{
 		S = s;
  	}
 
+	/*
  	void SetZ(double *aZ){
 		int GS = G*S;
 		Z = new double [GS];		
@@ -240,27 +245,21 @@ class bayesMP{
 			Z[i] = *aZ++;
 		}
  	}
+	*/
+ 	void SetZ(double *aZ){
+		Z = std::vector<double>(aZ, aZ + G*S);		
+ 	}
 
  	void SetPi(double *api){
-		pi = new double [G];		
-		for(int g=0; g<G; g++){
-			pi[g] = *api++;
-		}
+		pi = std::vector<double>(api, api + G);		
  	}
 
  	void SetDelta(double *adelta){
-		delta = new double [G];		
-		for(int g=0; g<G; g++){
-			delta[g] = *adelta++;
-		}
+		delta = std::vector<double>(adelta, adelta + G);		
  	}
 
  	void SetY(int *aY){
-		int GS = G*S;		
-		Y = new int [GS];		
-		for(int i=0; i<GS; i++){
-			Y[i] = *aY++;
-		}
+		Y = std::vector<int>(aY, aY + G*S);		
  	}
 
  	void SetGamma(double agamma){
@@ -307,16 +306,9 @@ class bayesMP{
 		HSall = aHSall;
  	}
 	
- 	void SetAveCom(int aaveCom){
-		aveCom = aaveCom;
- 	}
 	
 	void iniYHSall(){
-		YHSall = new int [G*S];
-		for(int i=0;i<G*S;i++){
-			YHSall[i] = 0;
-		}
-		
+		YHSall = std::vector<int>(G*S, 0);				
 	}
 
 	void SetfullFilename(char *filename){
@@ -331,20 +323,16 @@ class bayesMP{
 	    strcat(fileHSall,"HSall.txt");		
 	}
 	
-	void SetAveComFileame(char *filename){
-	    fileAveCom = new char[strlen(filename)+10];
-	    strcpy(fileAveCom,filename);
-	    strcat(fileAveCom,"AveCom.txt");		
-	}
 	
 public:
 	para ** paraObjS;						
 	
-	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall, int *aveCom)
+	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
 		SetG(*aG);
 		SetS(*aS);
 		SetZ(aZ);
+		//SetZZ(aZ);
 		SetGamma(*agamma);
 		SetBeta(*abeta);
 		SetSigma0(*asigma0);
@@ -359,13 +347,10 @@ public:
 		SetnBurnin(*burnin);
 		SetfullRes(*fullRes);
 		SetHSall(*aHSall);
-		SetAveCom(*aveCom);		
 		SetfullFilename(filename);
 		SetHSallFileame(filename);	
-		SetAveComFileame(filename);			
 		iniYHSall();
 		thisIter = 0;								
-		aveComponent = new double [*niter];									
 	}
 	
 	void updatePara()
@@ -499,9 +484,6 @@ public:
 		return(fileHSall);
 	}
 
-	char * GetAveComFileame(){
-		return(fileAveCom);
-	}
 
 	int getNewMembership(int s, int direction){
 		para * sparaPointer0 = paraObjS[s];
@@ -578,20 +560,12 @@ public:
 		}
 		updatePi();
 		updateHSall();	
-		GetAveComponent();		
+		updateGamma();
 		if(fullRes == 1){appendFile(myStream, thisIter);}
 		thisIter++;
 			
 	}		
-	
-	void GetAveComponent(){
-		aveComponent[thisIter] = 0;
-		for(int s=0;s<S;s++){
-			aveComponent[thisIter] += ((double) getParaLength(s))/S;	
-			//cout<<"iter: "<< thisIter << ". " << "s: " << s << ". numComponent" <<getParaLength(s) <<endl	;	
-		}
-	}
-	
+		
 	void updateOne(int g, int s) {
 		deletePara(g, s);
 		updateMembership(g ,s);
@@ -627,21 +601,6 @@ public:
 		streamHSall.close();
 	}
 
-	void outputAveCom(char *myfile){
-	    ofstream streamAveCom;
-	    streamAveCom.open(myfile);		
-		double count = 0;
-		for(int i=0;i<niter;i++){
-			if(i<burnin){
-				continue;
-			}
-			count += aveComponent[i];
-		}
-		count = count / (niter - burnin);			
-	    streamAveCom << count;						
-	    streamAveCom << endl;						
-		streamAveCom.close();		
-	}
 
 	void appendFile(ofstream& myStream, int thisIter){
 		if(thisIter==0){myStream.open(fileFullRes);}
@@ -656,6 +615,8 @@ public:
 		for(int i=0;i<G*S;i++){
 			myStream << Y[i] << "\t";
 		}
+
+		myStream << gamma;
 				
 	    myStream << endl;
 		if(thisIter==niter-1){myStream.close();}
@@ -710,7 +671,6 @@ public:
 			poolY[i] = sparaPointer->getMembership();
 			
 			int n = sparaPointer->GetN();
-			double sumZ = sparaPointer->GetSumZ();
 			double postmu = sparaPointer->Getpostmu();
 			double postsd = sparaPointer->Getpostsd();			
 					
@@ -759,33 +719,71 @@ public:
 		}
 		
 		// for pi parameter;
-		double pia = gamma/(G - gamma) + Yplus + Yminus;
-		//double pia = gamma/G  + Yplus + Yminus;
-		double pib = 1 + S - Yplus - Yminus;
-	
-		gamma_distribution<double> distGammaPia(pia,1);
-		gamma_distribution<double> distGammaPib(pib,1);
-		
-		double piN = distGammaPia(generator);
-		double piD = distGammaPib(generator);
-		pi[g] = piN/(piN + piD);
-		
-		// for delta parameter;
-		
-		double deltaa = beta + Yplus;
-		double deltab = beta + Yminus;
-	
-		gamma_distribution<double> distGammaDeltaa(deltaa,1);
-		gamma_distribution<double> distGammaDeltab(deltab,1);
-		
-		double deltaN = distGammaDeltaa(generator);
-		double deltaD = distGammaDeltab(generator);
-		delta[g] = deltaN/(deltaN + deltaD);		
+		double pia = gamma + Yplus + Yminus;
+		double pib = 1 - gamma + S - Yplus - Yminus;
+		pi[g] = rbeta(pia, pib);	
+		delta[g] = rbeta(beta + Yplus, beta + Yminus);
 		
 		//cout<<"gene "<<g<<". pia:"<<pia<<". pib:"<<pib <<". pig"<< pi[g] <<endl;
 		//cout<<"gene "<<g<<". deltaa:"<<deltaa<<". deltab:"<<deltab <<". deltag"<< delta[g] <<endl;				
 	}
+	
+	double binrarySearch(vector<double>& pig)
+	{
+	  double tol = 1.0/1000000;
+	  double gammaLeft = tol;
+	  double gammaRight = 1 - tol;
+	  double gammaMiddle;
+	  double A = 0.0;
+  
+	  int n = pig.size();
+  
+	  for(int i=0;i<n;i++){
+	    A += (log(pig[i]) - log(1 - pig[i]))/n;
+	  }
+  
+	  int iter = 0;
+	  while(iter<=400 && (gammaRight-gammaLeft)>tol){	
+		iter++;  
+	    gammaMiddle = (gammaLeft + gammaRight)/2;
+	    if(A > digamma(gammaMiddle) - digamma(1 - gammaMiddle)){
+	      gammaLeft = gammaMiddle;
+	    } else {
+	      gammaRight = gammaMiddle;
+	    }
+	  }
+	  //cout<<"iter: "<<iter<<endl;
+	  //cout<<"gammaRight+gammaLeft)/2: "<<(gammaRight+gammaLeft)/2<<endl;
+	  return (gammaRight+gammaLeft)/2;
+	}
+	
+	long double loglikelihood(double gamma,vector<double>& pig)
+	{
+	  int G = pig.size();
+	  long double loglikelihood = 0.0;
+	  for(int g=0;g<G;g++){
+	    loglikelihood += dbeta(pig[g],gamma,1-gamma,1);
+	  }
+	  return(loglikelihood);
+	}
 		
+	void updateGamma(){
+		double amu = binrarySearch(pi);
+		double aprop = rnorm(amu,MHsd);
+		//cout<<"loglikelihood(aprop, pi)"<<loglikelihood(aprop, pi)<<". loglikelihood(gamma, pi)"<<loglikelihood(gamma, pi)<<endl;
+	    if(runif(0,1) < exp(loglikelihood(aprop, pi) - loglikelihood(gamma, pi))){
+		  gamma = aprop;
+		  countAcceptGamma++;
+		  MHsd *= 1.01;
+    	} else {
+    	  MHsd /= 1.01;	
+    	}	
+	}
+		
+	void printAcceptRate(){
+		cout << "mcmc accepted iter: " << countAcceptGamma	 <<endl;		
+		cout << "mcmc final gamma: " << gamma	 <<endl;		
+	}	
 	bayesMP(){
 		cout<<"hi, I am constructing a BayesMP obj"<<endl;
 	}
@@ -819,29 +817,29 @@ public:
 	}
 	
 	~bayesMP(){
-		delete [] Z;
-		delete [] Y;
-		delete [] pi;
-		delete [] delta;
-		delete [] YHSall;
+		//≤delete [] Z;
+		//delete [] Y;
+		//delete [] pi;
+		//delete [] delta;
+		//delete [] YHSall;
 		delete [] fileFullRes;
 		delete [] fileHSall;
-		delete [] fileAveCom;
-		delete [] aveComponent;		
 		delete [] paraObjS;		
 	}
 	
 	
 };
 
-void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall, int *aveCom){
+void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 
 		
 	bayesMP * mcmcobj = new bayesMP;
-	mcmcobj->initialize(G,S,Z,gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall, aveCom);
+	mcmcobj->initialize(G,S,Z,gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+    cout << "here 1 " <<endl;
+
 	mcmcobj->updatePara();
 	
-    
+    cout << "here 2 " <<endl;
 	
 	for(int b=0;b < *niter;b++){
 		mcmcobj->iterateOne();		
@@ -850,18 +848,16 @@ void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha,
 	}
 
 	if(*HSall==1){mcmcobj->outputHSall(mcmcobj->GetHSallFileame());}
-	if(*aveCom==1){mcmcobj->outputAveCom(mcmcobj->GetAveComFileame());}
-		
+	mcmcobj->printAcceptRate();
 	mcmcobj->freeBayesMP();
 	delete mcmcobj;
 		
 }
 
 extern "C" {
-	void mcmc_R(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall, int *aveCom){
-		mcmc(G, S, Z, gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall, aveCom);
+	void mcmc_R2(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
+		mcmc(G, S, Z, gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
 	}
 }
-
 
 

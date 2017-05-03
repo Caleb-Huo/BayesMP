@@ -3,7 +3,7 @@
 ##' implementation for BayesMP, MCMC part
 ##' @title MCMC for BayesMP
 ##' @param Z Z statistics. Z should be a p*n matrix.
-##' @param gamma Estimated null proportation.
+##' @param initial gamma Estimated null proportation.
 ##' @param beta Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2
 ##' @param alpha Concentration parameter for DPs, default=1
 ##' @param mu0 Mean parameter for base function, default=0
@@ -18,7 +18,6 @@
 ##' @param fileName Base fileName for saving fulll mcmc results, hypothesis HS results.
 ##' @param fullRes binary: 0: do not save full mcmc results; 1: save full mcmc results.
 ##' @param HSall binary: 0: do not save hypothesis HS results; 1: save hypothesis HS results.
-##' @param aveCom binary: 0: do not save average DP component results; 1: save average DP component results. This argument will be elimated in the next version.
 ##' @return computing time
 ##' @author Zhiguang Huo
 ##' @export
@@ -34,18 +33,19 @@
 ##' cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 ##' Z <- cbind(aZ, bZ, cZ)
 ##' G <- nrow(Z)
-##' delta <- 0.4
-##' nullProp <- estimateNull_Efron_delta(Z, delta)
-##' estGamma <- mean(1 - nullProp) * G
+##' w <- locfdr(Z, plot=0)
+##' estGamma <- 1 - w$fp0["mlest", "p0"]
+##' estMu <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "delta"])
+##' estSigma <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "sigma"])
 ##' mcmc(Z, estGamma)
 
 
-mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1, aveCom=0){
+mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
 
 	if(is.null(Pi)){
-		Pi <- rbeta(G, gamma/(G-gamma), 1)		
+		Pi <- rbeta(G, gamma, 1-gamma)
 	}
 	if(is.null(delta)){	
 		delta <- rbeta(G, beta, beta)
@@ -62,9 +62,9 @@ mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0
 	}
 		
 	keepTime <- system.time(
-		obj <- .C('mcmc_R',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
+		obj <- .C('mcmc_R2',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
 				sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),delta=as.double(delta),Y=as.integer(Y0),
-				niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall),aveCom=as.integer(aveCom))
+				niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))
 		)
 	return(keepTime)
 }
