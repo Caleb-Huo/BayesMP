@@ -23,9 +23,19 @@ install_github("Caleb-Huo/BayesMP")
 First downlowd the latest R package "https://github.com/Caleb-Huo/BayesMP/releases"
 * In command line:
 ```
+<<<<<<< HEAD
 R CMD INSTALL BayesMP-0.0.5.tar.gz
 ```
 * In R console
 ```R
 install.packages("BayesMP-0.0.5.tar.gz", repos = NULL, type="source")
 ```
+=======
+R CMD INSTALL BayesMP-0.0.4.tar.gz
+```
+* In R console
+```R
+install.packages("BayesMP-0.0.4.tar.gz", repos = NULL, type="source")
+```
+
+>>>>>>> origin/master
