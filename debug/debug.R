@@ -26,13 +26,13 @@ bZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
-w <- locfdr::locfdr(Z)
-estGamma <- 1 - w$fp0["mlest", "p0"]
 
-niter <- 100
+niter <- 1000
 burnin <- 50
 nsample <- niter - burnin
-gamma <- estGamma
+if(F){
+  mcmc(Z,niter = 1000, burnin=50)
+}
 
 beta=1/2
 alpha=1

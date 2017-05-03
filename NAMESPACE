@@ -4,7 +4,5 @@ useDynLib(BayesMP)
 
 export(BayesianFDR)
 export(distance)
-export(estimateNull_Efron_delta)
-export(estimatePrior)
 export(mcmc)
 export(tightClustPam)

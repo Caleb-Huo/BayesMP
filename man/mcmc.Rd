@@ -4,9 +4,10 @@
 \alias{mcmc}
 \title{MCMC for BayesMP}
 \usage{
-mcmc(Z, gamma, beta = 1/2, alpha = 1, mu0 = 0, sigma0 = 10, sigma = 1,
-  trunc = 0, Pi = NULL, delta = NULL, Y = NULL, niter = 100,
-  burnin = 50, fileName = "BayesMP_mcmc", fullRes = 1, HSall = 1)
+mcmc(Z, gamma = NULL, beta = 1/2, alpha = 1, mu0 = 0, sigma0 = 10,
+  sigma = 1, trunc = NULL, Pi = NULL, delta = NULL, Y = NULL,
+  niter = 100, burnin = 50, fileName = "BayesMP_mcmc", fullRes = 1,
+  HSall = 1)
 }
 \arguments{
 \item{Z}{Z statistics. Z should be a p*n matrix.}
@@ -62,11 +63,7 @@ set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 G <- nrow(Z)
-w <- locfdr(Z, plot=0)
-estGamma <- 1 - w$fp0["mlest", "p0"]
-estMu <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "delta"])
-estSigma <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "sigma"])
-mcmc(Z, estGamma, trunc=0.1)
+mcmc(Z)
 }
 \author{
 Zhiguang Huo

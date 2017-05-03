@@ -33,17 +33,22 @@
 ##' cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 ##' Z <- cbind(aZ, bZ, cZ)
 ##' G <- nrow(Z)
-##' w <- locfdr(Z, plot=0)
-##' estGamma <- 1 - w$fp0["mlest", "p0"]
-##' estMu <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "delta"])
-##' estSigma <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "sigma"])
-##' mcmc(Z, estGamma, trunc=0.1)
+##' mcmc(Z)
 
 
-mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
+mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=NULL, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
+	
+	if(is.null(gamma)){
+		w <- locfdr(Z, plot=0)
+		gamma <- 1 - w$fp0['mlest','p0']			
+	}
 
+	if(is.null(trunc)){
+		trunc <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "delta"]))
+	}
+	
 	if(is.null(Pi)){
 		Pi <- rbeta(G, gamma, 1-gamma)
 	}
