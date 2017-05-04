@@ -467,7 +467,7 @@ public:
 		int aYmem = Ymem[sGg];		
 		
 		para * sparaPointer = paraObjS[s];
-		para * sparaPointer0;
+		para * sparaPointer0 = sparaPointer;
 		
 		while(sparaPointer!=NULL)
 		{
@@ -647,7 +647,7 @@ public:
 
 	void updateMembership(int g ,int s){	
 		para * sparaPointer = paraObjS[s];	
-		int tracei;	
+		int tracei = 0;	
 		int sparalength = getParaLength(s);	
 		
 		int nSumP = getParaSum(s,1);
