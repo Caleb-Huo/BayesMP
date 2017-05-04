@@ -206,6 +206,9 @@ class bayesMP{
 	std::vector<double> Z;
 	// gamma: prior for pi_g; beta: prior for delta_g; alpha: hyperparameter for DP; mu0: mean para for G0; sigma0: sd para for G0; sigma: sd for emission;
 	double gamma, beta, alpha, mu0, sigma0, sigma, trunc;
+	std::vector<double> empMu;
+	std::vector<double> empSD;
+	
 	int countAcceptGamma = 0;
 	// pi: prob gene g to be DE. delta: prob d DE gene to be positive.
 	std::vector<double> pi;
@@ -264,6 +267,14 @@ class bayesMP{
 
  	void SetGamma(double agamma){
 		gamma = agamma;		
+ 	}
+
+ 	void SetEmpMu(double *aempMu){
+		empMu = std::vector<double>(aempMu, aempMu + S);
+ 	}
+
+ 	void SetEmpSD(double *aempSD){
+		empSD = std::vector<double>(aempSD, aempSD + S);		
  	}
 
  	void SetBeta(double abeta){
@@ -327,13 +338,15 @@ class bayesMP{
 public:
 	para ** paraObjS;						
 	
-	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
+	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
 		SetG(*aG);
 		SetS(*aS);
 		SetZ(aZ);
 		//SetZZ(aZ);
 		SetGamma(*agamma);
+		SetEmpMu(aempMu);
+		SetEmpSD(aempSD);
 		SetBeta(*abeta);
 		SetSigma0(*asigma0);
 		SetSigma(*asigma);
@@ -563,7 +576,6 @@ public:
 		updateGamma();
 		if(fullRes == 1){appendFile(myStream, thisIter);}
 		thisIter++;
-			
 	}		
 		
 	void updateOne(int g, int s) {
@@ -656,15 +668,15 @@ public:
 		int nSumP = getParaSumNP(s);
 		int nSumN = getParaSumNN(s);
 		int totalLength = sparalength + 1 + 2;
-		double * poolYPr = new double [totalLength]();
-		int * poolY = new int [totalLength]();
 		
-		double aZ = Z[s*G + g];
-		
+		std::vector<double> poolYPr(totalLength, 0);
+		std::vector<int> poolY(totalLength, 0);
+		double aZ = Z[s*G + g];		
 		// 0: normal 0,1;
 		poolY[0] = 0;
 		// here null component is a standard normal distribution.
-		poolYPr[0] = dnorm(aZ, 0, 1, 0) * (1 - pi[g]);
+
+		poolYPr[0] = dnorm(aZ, empMu[s], empSD[s], 0) * (1 - pi[g]);
 		
 		for(int i=1;i<=sparalength;i++)
 		{
@@ -695,9 +707,6 @@ public:
 		discrete_distribution<int> distribution(vectorPr.begin(), vectorPr.end());
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
-
-		delete [] poolYPr;
-		delete [] poolY;
 	}
 	
 		
@@ -830,16 +839,12 @@ public:
 	
 };
 
-void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
+void mcmc(int *G, int *S, double *Z, double *gamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 
-		
 	bayesMP * mcmcobj = new bayesMP;
-	mcmcobj->initialize(G,S,Z,gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
-    cout << "here 1 " <<endl;
+	mcmcobj->initialize(G,S,Z,gamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj->updatePara();	
 
-	mcmcobj->updatePara();
-	
-    cout << "here 2 " <<endl;
 	
 	for(int b=0;b < *niter;b++){
 		mcmcobj->iterateOne();		
@@ -851,12 +856,11 @@ void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha,
 	mcmcobj->printAcceptRate();
 	mcmcobj->freeBayesMP();
 	delete mcmcobj;
-		
 }
 
 extern "C" {
-	void mcmc_R2(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
-		mcmc(G, S, Z, gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
+	void mcmc_R3(int *G, int *S, double *Z, double *gamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
+		mcmc(G, S, Z, gamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
 	}
 }
 

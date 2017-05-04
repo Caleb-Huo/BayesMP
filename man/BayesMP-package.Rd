@@ -12,7 +12,7 @@ clustered meta-patterns of differential expression signals. }
 \tabular{ll}{
 Package: \tab BayesMP\cr
 Type: \tab Package\cr
-Version: \tab 0.0.2\cr
+Version: \tab 0.0.6\cr
 Date: \tab 2015-08-16\cr
 License: \tab GPL-3\cr
 }
@@ -45,14 +45,12 @@ cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 G <- nrow(Z)
 
-w <- locfdr(Z, plot=0)
-estGamma <- 1 - w$fp0["mlest", "p0"]
 
 niter <- 100
 burnin <- 50
 nsample <- niter - burnin
 
-mcmc(Z, estGamma, niter=niter, burnin=burnin)
+mcmc(Z, niter=niter, burnin=burnin)
 
 HSallRes <- read.table('BayesMP_mcmcHSall.txt')
 

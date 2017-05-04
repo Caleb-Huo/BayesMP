@@ -33,16 +33,25 @@
 ##' cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 ##' Z <- cbind(aZ, bZ, cZ)
 ##' G <- nrow(Z)
-##' w <- locfdr(Z, plot=0)
-##' estGamma <- 1 - w$fp0["mlest", "p0"]
-##' estMu <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "delta"])
-##' estSigma <- apply(Z,2,function(x) locfdr(x)$fp0["mlest", "sigma"])
-##' mcmc(Z, estGamma)
+##' mcmc(Z)
 
 
-mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
+mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = NULL, empSD = NULL, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
+
+	if(is.null(gamma) | is.null(empMu) | is.null(empSD)){
+		w <- locfdr(Z, plot=0)
+		if(is.null(gamma)){
+			gamma <- 1 - w$fp0['mlest','p0']
+		}
+		if(is.null(empMu)){
+			empMu <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "delta"]))
+		}
+		if(is.null(empSD)){
+			empSD <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "sigma"]))
+		}				
+	}	
 
 	if(is.null(Pi)){
 		Pi <- rbeta(G, gamma, 1-gamma)
@@ -62,7 +71,8 @@ mcmc <- function(Z, gamma, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0
 	}
 		
 	keepTime <- system.time(
-		obj <- .C('mcmc_R2',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
+		obj <- .C('mcmc_R3',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),empMu=as.double(empMu), empSD=as.double(empSD),
+				beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
 				sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),delta=as.double(delta),Y=as.integer(Y0),
 				niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))
 		)
