@@ -573,7 +573,7 @@ public:
 		}
 		updatePi();
 		updateHSall();	
-		updateGamma();
+		//updateGamma();
 		if(fullRes == 1){appendFile(myStream, thisIter);}
 		thisIter++;
 	}		
@@ -628,7 +628,7 @@ public:
 			myStream << Y[i] << "\t";
 		}
 
-		myStream << gamma;
+		//myStream << gamma;
 				
 	    myStream << endl;
 		if(thisIter==niter-1){myStream.close();}
@@ -776,6 +776,7 @@ public:
 	  return(loglikelihood);
 	}
 		
+	/*	
 	void updateGamma(){
 		double amu = binrarySearch(pi);
 		double aprop = rnorm(amu,MHsd);
@@ -788,6 +789,7 @@ public:
     	  MHsd /= 1.01;	
     	}	
 	}
+	*/
 		
 	void printAcceptRate(){
 		cout << "mcmc accepted iter: " << countAcceptGamma	 <<endl;		
