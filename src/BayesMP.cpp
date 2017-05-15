@@ -609,15 +609,15 @@ public:
 		start_s=clock();
 		deletePara(g, s);
 		stop_s=clock();
-		time_s_delete += stop_s - start_s;
+		//time_s_delete += stop_s - start_s;
 		start_s=clock();
 		updateMembership(g ,s);
 		stop_s=clock();
-		time_s_update += stop_s - start_s;
+		//time_s_update += stop_s - start_s;
 		start_s=clock();
 		addPara(g, s);
 		stop_s=clock();
-		time_s_add += stop_s - start_s;
+		//time_s_add += stop_s - start_s;
 	}
 	
 	void updateHSall(){
