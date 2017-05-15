@@ -8,6 +8,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include <random>
+#include <ctime>// include this header 
 
 using namespace std;
 
@@ -572,17 +573,45 @@ public:
 	}
 
 	void iterateOne() {
+		int start_s;
+		int stop_s;
+		start_s=clock();
+		stop_s=clock();
+		
+		cout << "time: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		
+		start_s=clock();
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
 				updateOne(g,s);
 			}
 		}
+		stop_s=clock();
+		cout << "time updateOne: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		
+		
+		start_s=clock();
 		updatePi();
+		stop_s=clock();
+		cout << "time updatePi: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+
+		start_s=clock();
 		updateHSall();	
+		stop_s=clock();
+		cout << "time updateHSall: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+
 		if(randomGamma){
+			start_s=clock();
 			updateGamma();			
+			stop_s=clock();
+			cout << "time updateGamma: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
 		}
-		if(fullRes == 1){appendFile(myStream, thisIter);}
+		if(fullRes == 1){
+			start_s=clock();
+			appendFile(myStream, thisIter);
+			stop_s=clock();
+			cout << "time filewrite: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		}
 		thisIter++;
 	}		
 		

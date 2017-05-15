@@ -44,7 +44,7 @@ mcmc <- function(Z, gamma=NULL, randomGamma = TRUE, beta=1/2, alpha=1, mu0=0, si
 		pp <- pmin(pnorm(-abs(Z)) * 2, 1)
 		gamma <- max(1 - pi0est(pp)$pi0, 0.01)		
 	}	
-	cat("Initial gamma: ",gamma)
+	cat("Initial gamma: ",gamma, "\n")
 
 	if(is.null(Pi)){
 		Pi <- rbeta(G, gamma, 1-gamma)
