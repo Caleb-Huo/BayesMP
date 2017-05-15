@@ -41,7 +41,8 @@ mcmc <- function(Z, gamma=NULL, randomGamma = TRUE, beta=1/2, alpha=1, mu0=0, si
 	S <- ncol(Z) ## number of studies
 
 	if(is.null(gamma)){
-		gamma <- max(1 - qvalue(pnorm(Z))$pi0, 0.01)		
+		pp <- pmin(pnorm(-abs(Z)) * 2, 1)
+		gamma <- max(1 - pi0est(pp)$pi0, 0.01)		
 	}	
 	cat("Initial gamma: ",gamma)
 
