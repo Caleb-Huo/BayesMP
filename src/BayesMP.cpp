@@ -343,6 +343,9 @@ class bayesMP{
 	
 public:
 	para ** paraObjS;						
+	int time_s_delete = 0;
+	int time_s_update = 0;
+	int time_s_add = 0;
 	
 	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
@@ -573,48 +576,44 @@ public:
 	}
 
 	void iterateOne() {
-		int start_s;
-		int stop_s;
-		
-		start_s=clock();
+		time_s_delete = 0;
+		time_s_update = 0;
+		time_s_add = 0;
+				
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
 				updateOne(g,s);
 			}
 		}
-		stop_s=clock();
-		cout << "time updateOne: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;
 		
-		
-		start_s=clock();
+		cout << "time_s_delete: " << time_s_delete/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+		cout << "time_s_update: " << time_s_update/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+		cout << "time_s_add: " << time_s_add/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+
 		updatePi();
-		stop_s=clock();
-		cout << "time updatePi: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
-
-		start_s=clock();
 		updateHSall();	
-		stop_s=clock();
-		cout << "time updateHSall: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
-
 		if(randomGamma){
-			start_s=clock();
 			updateGamma();			
-			stop_s=clock();
-			cout << "time updateGamma: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 		}
 		if(fullRes == 1){
-			start_s=clock();
 			appendFile(myStream, thisIter);
-			stop_s=clock();
-			cout << "time filewrite: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 		}
 		thisIter++;
 	}		
 		
 	void updateOne(int g, int s) {
+		start_s=clock();
 		deletePara(g, s);
+		stop_s=clock();
+		time_s_delete += stop_s - start_s;
+		start_s=clock();
 		updateMembership(g ,s);
+		stop_s=clock();
+		time_s_update += stop_s - start_s;
+		start_s=clock();
 		addPara(g, s);
+		stop_s=clock();
+		time_s_add += stop_s - start_s;
 	}
 	
 	void updateHSall(){
