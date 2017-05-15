@@ -575,10 +575,6 @@ public:
 	void iterateOne() {
 		int start_s;
 		int stop_s;
-		start_s=clock();
-		stop_s=clock();
-		
-		cout << "time: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
 		
 		start_s=clock();
 		for(int g=0; g<G; g++){
@@ -587,30 +583,30 @@ public:
 			}
 		}
 		stop_s=clock();
-		cout << "time updateOne: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		cout << "time updateOne: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;
 		
 		
 		start_s=clock();
 		updatePi();
 		stop_s=clock();
-		cout << "time updatePi: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		cout << "time updatePi: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 
 		start_s=clock();
 		updateHSall();	
 		stop_s=clock();
-		cout << "time updateHSall: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		cout << "time updateHSall: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 
 		if(randomGamma){
 			start_s=clock();
 			updateGamma();			
 			stop_s=clock();
-			cout << "time updateGamma: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+			cout << "time updateGamma: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 		}
 		if(fullRes == 1){
 			start_s=clock();
 			appendFile(myStream, thisIter);
 			stop_s=clock();
-			cout << "time filewrite: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+			cout << "time filewrite: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 <<  "ms" << endl;
 		}
 		thisIter++;
 	}		
