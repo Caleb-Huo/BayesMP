@@ -583,7 +583,7 @@ public:
 				
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
-				updateOne(g,s);
+				updateOne(g,s, time_s_delete, time_s_update, time_s_add);
 			}
 		}
 		
