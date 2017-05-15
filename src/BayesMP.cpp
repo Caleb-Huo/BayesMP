@@ -479,7 +479,11 @@ public:
 		}
 		
 		para * sparaPointer = paraObjS[s];
-		para * sparaPointer0;
+		para * sparaPointer0 = paraObjS[s];
+		
+		if(sparaPointer==NULL){
+			cout << "catch sparaPointer is NULL, how can this happen?" << endl;
+		}
 		
 		while(sparaPointer!=NULL)
 		{
