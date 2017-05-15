@@ -36,13 +36,14 @@
 ##' mcmc(Z)
 
 
-mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(0,ncol(Z)), Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
+mcmc <- function(Z, gamma=NULL, randomGamma = TRUE, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(0,ncol(Z)), Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
 
 	if(is.null(gamma)){
 		gamma <- max(1 - qvalue(pnorm(Z))$pi0, 0.01)		
 	}	
+	cat("Initial gamma: ",gamma)
 
 	if(is.null(Pi)){
 		Pi <- rbeta(G, gamma, 1-gamma)
@@ -62,7 +63,8 @@ mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, tr
 	}
 		
 	keepTime <- system.time(
-		obj <- .C('mcmc_R3',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),empMu=as.double(empMu), empSD=as.double(empSD),
+		obj <- .C('mcmc_R3',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),randomGamma=as.integer(randomGamma),
+				empMu=as.double(empMu), empSD=as.double(empSD),
 				beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
 				sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),delta=as.double(delta),Y=as.integer(Y0),
 				niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))

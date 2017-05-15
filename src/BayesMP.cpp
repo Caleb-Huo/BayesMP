@@ -206,6 +206,7 @@ class bayesMP{
 	std::vector<double> Z;
 	// gamma: prior for pi_g; beta: prior for delta_g; alpha: hyperparameter for DP; mu0: mean para for G0; sigma0: sd para for G0; sigma: sd for emission;
 	double gamma, beta, alpha, mu0, sigma0, sigma, trunc;
+	int randomGamma;
 	std::vector<double> empMu;
 	std::vector<double> empSD;
 	
@@ -267,6 +268,10 @@ class bayesMP{
 
  	void SetGamma(double agamma){
 		gamma = agamma;		
+ 	}
+
+ 	void SetRandomGamma(double arandomGamma){
+		randomGamma = arandomGamma;		
  	}
 
  	void SetEmpMu(double *aempMu){
@@ -338,13 +343,14 @@ class bayesMP{
 public:
 	para ** paraObjS;						
 	
-	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
+	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
 		SetG(*aG);
 		SetS(*aS);
 		SetZ(aZ);
 		//SetZZ(aZ);
 		SetGamma(*agamma);
+		SetRandomGamma(*randomGamma);
 		SetEmpMu(aempMu);
 		SetEmpSD(aempSD);
 		SetBeta(*abeta);
@@ -573,7 +579,9 @@ public:
 		}
 		updatePi();
 		updateHSall();	
-		updateGamma();
+		if(randomGamma){
+			updateGamma();			
+		}
 		if(fullRes == 1){appendFile(myStream, thisIter);}
 		thisIter++;
 	}		
@@ -839,10 +847,10 @@ public:
 	
 };
 
-void mcmc(int *G, int *S, double *Z, double *gamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
+void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 
 	bayesMP * mcmcobj = new bayesMP;
-	mcmcobj->initialize(G,S,Z,gamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj->initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
 	mcmcobj->updatePara();	
 
 	
@@ -859,8 +867,8 @@ void mcmc(int *G, int *S, double *Z, double *gamma, double *empMu, double *empSD
 }
 
 extern "C" {
-	void mcmc_R3(int *G, int *S, double *Z, double *gamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
-		mcmc(G, S, Z, gamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
+	void mcmc_R3(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
+		mcmc(G, S, Z, gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
 	}
 }
 
