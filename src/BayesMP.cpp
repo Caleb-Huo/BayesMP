@@ -229,6 +229,10 @@ class bayesMP{
 	char * fileHSall;
 	double MHsd = 0.1;
 	
+	int time_s_delete = 0;
+	int time_s_update = 0;
+	int time_s_add = 0;
+	
 	std::vector<int> YHSall;
 	//int *YHSall;
 	ofstream myStream;	
@@ -343,9 +347,6 @@ class bayesMP{
 	
 public:
 	para ** paraObjS;						
-	int time_s_delete = 0;
-	int time_s_update = 0;
-	int time_s_add = 0;
 	
 	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
