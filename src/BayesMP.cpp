@@ -229,9 +229,9 @@ class bayesMP{
 	char * fileHSall;
 	double MHsd = 0.1;
 	
-	int *time_s_delete = 0;
-	int *time_s_update = 0;
-	int *time_s_add = 0;
+	int *time_s_delete;
+	int *time_s_update;
+	int *time_s_add;
 	
 	std::vector<int> YHSall;
 	//int *YHSall;
