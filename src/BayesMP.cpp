@@ -603,6 +603,9 @@ public:
 	}		
 		
 	void updateOne(int g, int s) {
+		int start_s;
+		int stop_s;
+		
 		start_s=clock();
 		deletePara(g, s);
 		stop_s=clock();
