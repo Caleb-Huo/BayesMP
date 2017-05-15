@@ -229,9 +229,9 @@ class bayesMP{
 	char * fileHSall;
 	double MHsd = 0.1;
 	
-	int *time_s_delete;
-	int *time_s_update;
-	int *time_s_add;
+	int time_s_delete;
+	int time_s_update;
+	int time_s_add;
 	
 	std::vector<int> YHSall;
 	//int *YHSall;
@@ -577,19 +577,19 @@ public:
 	}
 
 	void iterateOne() {
-		*time_s_delete = 0;
-		*time_s_update = 0;
-		*time_s_add = 0;
+		time_s_delete = 0;
+		time_s_update = 0;
+		time_s_add = 0;
 				
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
-				updateOne(g,s, time_s_delete, time_s_update, time_s_add);
+				updateOne(g,s);
 			}
 		}
 		
-		cout << "time_s_delete: " << *time_s_delete/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
-		cout << "time_s_update: " << *time_s_update/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
-		cout << "time_s_add: " << *time_s_add/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+		cout << "time_s_delete: " << time_s_delete/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+		cout << "time_s_update: " << time_s_update/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
+		cout << "time_s_add: " << time_s_add/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
 
 		updatePi();
 		updateHSall();	
@@ -602,28 +602,30 @@ public:
 		thisIter++;
 	}		
 		
+	/*
 	void updateOne(int g, int s) {
 		deletePara(g, s);
 		updateMembership(g ,s);
 		addPara(g, s);
 	}
+	*/
 
-	void updateOne(int g, int s, int *time_s_delete, int *time_s_update, int *time_s_add) {
+	void updateOne(int g, int s) {
 		int start_s;
 		int stop_s;
 		
 		start_s=clock();
 		deletePara(g, s);
 		stop_s=clock();
-		*time_s_delete += stop_s - start_s;
+		time_s_delete += stop_s - start_s;
 		start_s=clock();
 		updateMembership(g ,s);
 		stop_s=clock();
-		*time_s_update += stop_s - start_s;
+		time_s_update += stop_s - start_s;
 		start_s=clock();
 		addPara(g, s);
 		stop_s=clock();
-		*time_s_add += stop_s - start_s;
+		time_s_add += stop_s - start_s;
 	}
 	
 	void updateHSall(){
