@@ -603,6 +603,8 @@ public:
 	}		
 		
 	void updateOne(int g, int s) {
+		cout << "here 1" << time_s_delete << endl;
+		
 		int start_s;
 		int stop_s;
 		
