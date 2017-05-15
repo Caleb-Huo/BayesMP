@@ -36,21 +36,12 @@
 ##' mcmc(Z)
 
 
-mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = NULL, empSD = NULL, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
+mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(0,ncol(Z)), Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
 
-	if(is.null(gamma) | is.null(empMu) | is.null(empSD)){
-		w <- locfdr(Z, plot=0)
-		if(is.null(gamma)){
-			gamma <- 1 - w$fp0['mlest','p0']
-		}
-		if(is.null(empMu)){
-			empMu <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "delta"]))
-		}
-		if(is.null(empSD)){
-			empSD <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "sigma"]))
-		}				
+	if(is.null(gamma)){
+		gamma <- max(1 - qvalue(pnorm(Z))$pi0, 0.01)		
 	}	
 
 	if(is.null(Pi)){
