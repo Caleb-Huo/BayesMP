@@ -468,13 +468,16 @@ public:
 			}
 		}
 		
+		/*
 		cout << "time_s_delete: " << time_s_delete/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
 		cout << "time_s_update: " << time_s_update/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
 		cout << "time_s_add: " << time_s_add/double(CLOCKS_PER_SEC)*1000 << "ms" << endl;		
 
+		*/
+		
 		updatePi();
 		updateHSall();	
-		if(randomGamma){
+		if(randomGamma == 1){
 			updateGamma();			
 		}
 		if(fullRes == 1){
@@ -660,7 +663,7 @@ public:
 	
 	double binrarySearch(vector<double>& pig)
 	{
-	  double tol = 1.0/1e-8;
+	  double tol = 1.0/1e8;
 	  double gammaLeft = tol;
 	  double gammaRight = 1 - tol;
 	  double gammaMiddle;
