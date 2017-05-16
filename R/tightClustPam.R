@@ -74,15 +74,16 @@ tightClustPam <- function (adist, target, k.min, alpha = 0.1, beta = 0.6, top.ca
         i = 1
         D.temp <- Dbar
         res <- list()
-        while (i <= top.can * 2 && dim(D.temp)[1] > 0) {
-            candidate.one <- find.candidates.one(D.temp)
-            candidate <- extend.candidate(D.temp, candidate.one,
-                alpha = alpha)
-            D.temp <- D.temp[-candidate, -candidate]
-            res[[i]] <- names(candidate)
-            mode(res[[i]]) <- "numeric"
-            i = i + 1
-        }
+	    while (i <= top.can * 2 && dim(D.temp)[1] > 1) {
+	        candidate.one <- find.candidates.one(D.temp)
+	        candidate <- extend.candidate(D.temp, candidate.one,
+	            alpha = alpha)
+	        D.temp <- as.matrix(D.temp[-candidate, -candidate])
+		
+	        res[[i]] <- names(candidate)
+	        mode(res[[i]]) <- "numeric"
+	        i = i + 1
+	    }
         res <- res[order(unlist(lapply(res, length)), decreasing = TRUE)][1:top.can]
         return(res)
     }
@@ -162,3 +163,5 @@ tightClustPam <- function (adist, target, k.min, alpha = 0.1, beta = 0.6, top.ca
     class(res) <- "tight.clust"
     return(res)
 }
+
+
