@@ -112,8 +112,9 @@ public:
 
 class ParaList{
 	int length;
-	std::vector<Para> paraList;	
 public:
+	std::vector<Para> paraList;	
+
 	ParaList(){
 		length = 0;
 	}
