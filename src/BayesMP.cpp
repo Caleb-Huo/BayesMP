@@ -738,6 +738,10 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 	bayesMP * mcmcobj = new bayesMP;	
 	mcmcobj->initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
 	mcmcobj->iniPara();	
+	for(int s=0;s<3;s++){
+		cout<<"c print study "<< s << "para: " << mcmcobj->bayesMPparaLists[s].getLength()<<endl;					
+	}
+	
 
 	
 	for(int b=0;b < *niter;b++){
