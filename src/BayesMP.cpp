@@ -454,9 +454,8 @@ public:
 	}
 
 	void iterateOne() {
-		int totalP = 0;
 		for(int s=0; s<S; s++){
-			cout << "s: " s << "# para: " << bayesMPparaLists[s].getLength() << endl;
+			cout << "s: " << s << "# para: " << bayesMPparaLists[s].getLength() << endl;
 		}
 	
 		for(int g=0; g<G; g++){
