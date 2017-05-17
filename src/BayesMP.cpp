@@ -367,9 +367,9 @@ public:
 		
 	void iniPara(){
 		for(int s=0;s<S;s++){
-			int findFlag = 0;
 			ParaList aparaList = bayesMPparaLists[s];
 			for(int g=0;g<G;g++){
+				int findFlag = 0;
 				int sGg = s*G+g;
 				if(Y[sGg]!=0){
 					int lengthAparaList = aparaList.getLength();
@@ -377,10 +377,6 @@ public:
 						aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg]));
 					} else {
 						for(int l=0;l<lengthAparaList;l++){
-							if(s==2){
-								cout << "Y[sGg]" << Y[sGg] << endl;
-								cout << "aparaList.getPara(l).getMembership()" << aparaList.getPara(l).getMembership() << endl;								
-							}
 							if(Y[sGg]==aparaList.getPara(l).getMembership())
 							{
 								aparaList.getPara(l).addZ(sGg, Z[sGg]);
