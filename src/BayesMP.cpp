@@ -379,7 +379,9 @@ public:
 						for(int l=0;l<lengthAparaList;l++){
 							if(Y[sGg]==aparaList.getPara(l).getMembership())
 							{
+								cout << "before aparaList length: " << aparaList.getLength() << endl;					
 								aparaList.getPara(l).addZ(sGg, Z[sGg]);
+								cout << "after aparaList length: " << aparaList.getLength() << endl;					
 								findFlag = 1;
 								break;
 							}
@@ -392,11 +394,11 @@ public:
 			} // end of loop for g of G
 			cout << "s = " << s << endl;
 			for(int l=0;l<aparaList.getLength();l++){
-				cout << "l = " << l << ". n: " << aparaList.getPara(l).GetN();
+				cout << "l = " << l << ". n: " << aparaList.getPara(l).GetN() << endl;
 			}
 			bayesMPparaLists[s] = aparaList;
 			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
-				cout << "l = " << l << ". n: " << bayesMPparaLists[s].getPara(l).GetN();
+				cout << "l = " << l << ". n: " << bayesMPparaLists[s].getPara(l).GetN()  << endl;
 			}
 
 		} // end of loop for s of S
