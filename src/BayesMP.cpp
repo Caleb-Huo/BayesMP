@@ -369,7 +369,6 @@ public:
 		for(int s=0;s<S;s++){
 			int findFlag = 0;
 			ParaList aparaList = bayesMPparaLists[s];
-			cout<<"a print study "<< s << "para: " << aparaList.getLength()<<endl;			
 			for(int g=0;g<G;g++){
 				int sGg = s*G+g;
 				if(Y[sGg]!=0){
@@ -378,6 +377,10 @@ public:
 						aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg]));
 					} else {
 						for(int l=0;l<lengthAparaList;l++){
+							if(s==2){
+								cout << "Y[sGg]" << Y[sGg] << endl;
+								cout << "aparaList.getPara(l).getMembership()" << aparaList.getPara(l).getMembership() << endl;								
+							}
 							if(Y[sGg]==aparaList.getPara(l).getMembership())
 							{
 								aparaList.getPara(l).addZ(sGg, Z[sGg]);
@@ -397,10 +400,7 @@ public:
 				cout << "l = " << l << ". n: " << aparaList.getPara(l).GetN() << endl;
 			}
 			*/
-			cout<<"b print study "<< s << "para: " << aparaList.getLength()<<endl;						
-			bayesMPparaLists[s] = aparaList;
-			cout<<"c print study "<< s << "para: " << bayesMPparaLists[s].getLength()<<endl;			
-			
+			bayesMPparaLists[s] = aparaList;			
 			/*
 			
 			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
