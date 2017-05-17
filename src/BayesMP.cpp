@@ -365,10 +365,11 @@ public:
 	}
 	
 		
-	void updatePara(){
+	void iniPara(){
 		for(int s=0;s<S;s++){
 			int findFlag = 0;
 			ParaList aparaList = bayesMPparaLists[s];
+			cout<<"a print study "<< s << "para: " << aparaList.getLength()<<endl;			
 			for(int g=0;g<G;g++){
 				int sGg = s*G+g;
 				if(Y[sGg]!=0){
@@ -390,15 +391,22 @@ public:
 					} // if else 
 				} // end of if Y[sGg]!=0
 			} // end of loop for g of G
+			/*
 			cout << "s = " << s << endl;
 			for(int l=0;l<aparaList.getLength();l++){
 				cout << "l = " << l << ". n: " << aparaList.getPara(l).GetN() << endl;
 			}
+			*/
+			cout<<"b print study "<< s << "para: " << aparaList.getLength()<<endl;						
 			bayesMPparaLists[s] = aparaList;
+			cout<<"c print study "<< s << "para: " << bayesMPparaLists[s].getLength()<<endl;			
+			
+			/*
+			
 			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
 				cout << "l = " << l << ". n: " << bayesMPparaLists[s].getPara(l).GetN()  << endl;
 			}
-
+			*/
 		} // end of loop for s of S
 	}
 	
@@ -729,12 +737,7 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 	
 	bayesMP * mcmcobj = new bayesMP;	
 	mcmcobj->initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
-	cout<<"print size: " << mcmcobj->bayesMPparaLists.size()<<endl;
-	for(int s=0;s<*S;s++){
-		cout<<"print study "<< s << "para: " << mcmcobj->bayesMPparaLists[s].getLength()<<endl;
-		
-	}
-	mcmcobj->updatePara();	
+	mcmcobj->iniPara();	
 
 	
 	for(int b=0;b < *niter;b++){
