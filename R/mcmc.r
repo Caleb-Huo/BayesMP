@@ -3,13 +3,16 @@
 ##' implementation for BayesMP, MCMC part
 ##' @title MCMC for BayesMP
 ##' @param Z Z statistics. Z should be a p*n matrix.
-##' @param initial gamma Estimated null proportation.
+##' @param gamma initial gamma Estimated null proportation.
+##' @param randomGamma update gamma if true.
 ##' @param beta Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2
 ##' @param alpha Concentration parameter for DPs, default=1
 ##' @param mu0 Mean parameter for base function, default=0
 ##' @param sigma0 sqrt root of variance parameter for base function, default=10
 ##' @param sigma sqrt root of variance parameter for DP mixture component, default=1
 ##' @param trunc truncation parameter for base function (For both positive component and negative component), default=0
+##' @param empMu a vector of mean parameter for the null component, default is 0.
+##' @param empSD a vector of sd parameter for the null component, default is 1.
 ##' @param Pi initial pi (DE probablity vector), default rbeta(G, estGamma/(G-estGamma), 1)
 ##' @param delta initial delta (DE direction probablity vector), default rbeta(G, beta, beta)
 ##' @param Y initial component indicator. Y should be a p*n matrix. Y = ..., -2, -1, 0, 1, 2, ...
@@ -72,4 +75,3 @@ mcmc <- function(Z, gamma=NULL, randomGamma = TRUE, beta=1/2, alpha=1, mu0=0, si
 		)
 	return(keepTime)
 }
-

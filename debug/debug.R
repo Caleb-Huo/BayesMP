@@ -27,16 +27,22 @@ set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 
-niter <- 100
+niter <- 1000
 burnin <- 50
 nsample <- niter - burnin
+<<<<<<< HEAD
+=======
+if(F){
+  mcmc(Z,niter = 1000, burnin=50)
+}
+>>>>>>> master
 
 beta=1/2
 alpha=1
 mu0=0
 sigma0=10
 sigma=1
-trunc=0
+trunc=0.1
 Pi=NULL
 delta=NULL
 Y=NULL
