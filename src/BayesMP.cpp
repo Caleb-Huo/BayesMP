@@ -395,7 +395,7 @@ public:
 	}
 	
 	
-	void deletePara(int g, int s){
+	void deletePara1(int g, int s){
 		int sGg = s*G+g;
 		int aY = Y[sGg];
 		if(aY!=0){
@@ -422,7 +422,7 @@ public:
 		} // if(aY!=0)
 	}
 
-	void addPara(int g, int s){		
+	void addPara1(int g, int s){		
 		int findFlag = 0;
 		int sGg = s*G+g;
 		int aY = Y[sGg];
@@ -465,6 +465,8 @@ public:
 		if(randomGamma == 1){
 			updateGamma();			
 		}
+		cout << "gamma: " << gamma << endl;
+		
 		if(fullRes == 1){
 			appendFile(myStream, thisIter);
 		}
@@ -473,9 +475,9 @@ public:
 		
 
 	void updateOne(int g, int s) {
-		deletePara(g, s);
+		deletePara1(g, s);
 		updateMembership(g ,s);
-		addPara(g, s);
+		addPara1(g, s);
 	}
 	
 	void updateHSall(){
