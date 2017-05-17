@@ -390,7 +390,15 @@ public:
 					} // if else 
 				} // end of if Y[sGg]!=0
 			} // end of loop for g of G
+			cout << "s = " << s << endl;
+			for(int l=0;l<aparaList.size();l++){
+				cout << "l = ", l, ". n: " << aparaList.getPara(l).GetN();
+			}
 			bayesMPparaLists[s] = aparaList;
+			for(int l=0;l<bayesMPparaLists[s].size();l++){
+				cout << "l = ", l, ". n: " << bayesMPparaLists[s].getPara(l).GetN();
+			}
+
 		} // end of loop for s of S
 	}
 	
