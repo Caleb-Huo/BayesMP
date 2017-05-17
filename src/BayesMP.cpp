@@ -583,6 +583,10 @@ public:
 			} else {
 				poolYPr[l] = faln(aZ, postmu, postsd, sigma, trunc) * n / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 			}
+			
+			if(g==1&&s==0){
+				cout<<"n: "<<n <<". nSumP:" << nSumP << ". nSumN:" << nSumN <<endl;
+			}
 
 		} // for loop of l for lengthAparaList
 		
