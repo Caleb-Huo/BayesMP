@@ -475,7 +475,7 @@ public:
 		if(randomGamma == 1){
 			updateGamma();			
 		}
-		cout << "gamma: " << gamma << endl;
+		//cout << "gamma: " << gamma << endl;
 		
 		if(fullRes == 1){
 			appendFile(myStream, thisIter);

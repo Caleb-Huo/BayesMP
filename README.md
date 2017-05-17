@@ -3,7 +3,7 @@ R package for Bayes Meta Pattern
 
 
 ## Required Package
-* locfdr
+* qvalue
 * cluster
 
 ## Install This Package from github
