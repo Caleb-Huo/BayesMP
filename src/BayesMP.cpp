@@ -412,19 +412,14 @@ public:
 		int sGg = s*G+g;
 		int aY = Y[sGg];
 		if(aY!=0){
-			ParaList aparaList = bayesMPparaLists[s];
-			int lengthAparaList = aparaList.getLength();
+			int lengthAparaList = bayesMPparaLists[s].getLength();
 			for(int l=0;l<lengthAparaList;l++){
-				if(aY==aparaList.paraList[l].getMembership()){
-					int removeZStatus = aparaList.paraList[l].removeZ(sGg,Z[sGg]);
-					
+				if(aY==bayesMPparaLists[s].paraList[l].getMembership()){
+					int removeZStatus = bayesMPparaLists[s].paraList[l].removeZ(sGg,Z[sGg]);					
 					if(removeZStatus==1){
 						return;
 					} else if(removeZStatus==0){
-						cout<<"yes, here to remove a para!"<<endl;
-						cout<<"aparaList length before remove: " << aparaList.getLength()<<endl;
-						aparaList.erasePara(l);					
-						cout<<"aparaList length after remove: " << aparaList.getLength()<<endl;
+						bayesMPparaLists[s].erasePara(l);					
 						return;
 					} else if(removeZStatus==2){
 						cout<<"such index doesn't exist, bug 2"<<endl;
@@ -435,7 +430,6 @@ public:
 					}														
 				}
 			} // for loop of l for lengthAparaList
-			bayesMPparaLists[s] = aparaList;
 		} // if(aY!=0)
 	}
 
@@ -448,19 +442,17 @@ public:
 			return;
 		}
 		
-		ParaList aparaList = bayesMPparaLists[s];
-		int lengthAparaList = aparaList.getLength();
+		int lengthAparaList = bayesMPparaLists[s].getLength();
 		for(int l=0;l<lengthAparaList;l++){
-			if(aY==aparaList.paraList[l].getMembership()){
-				aparaList.paraList[l].addZ(sGg,Z[sGg]);
+			if(aY==bayesMPparaLists[s].paraList[l].getMembership()){
+				bayesMPparaLists[s].paraList[l].addZ(sGg,Z[sGg]);
 				findFlag = 1;
 				break;
 			}
 		} // for loop of l for lengthAparaList
 		if(findFlag==0){
-			aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],aY));
+			bayesMPparaLists[s].addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],aY));
 		}		
-		bayesMPparaLists[s] = aparaList;
 	}	
 
 	char * GetfullFilename(){
