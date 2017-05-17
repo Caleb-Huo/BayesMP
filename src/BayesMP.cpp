@@ -610,15 +610,7 @@ public:
 		poolYPr[lengthAparaList + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
 		poolY[lengthAparaList + 2] = aparaList.getNewMembership(-1);
 		poolYPr[lengthAparaList + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
-				
-		if(g==1){
-			cout << "s: "<<s<<endl;
-			for(unsigned int i=0;i<poolY.size();i++){
-				cout << "Y: "<< poolY[i]<<". prob: " <<poolYPr[i]<<endl;
-			}
-			
-		}		
-		
+						
 		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
@@ -730,21 +722,21 @@ public:
 
 void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 	
-	bayesMP * mcmcobj = new bayesMP;	
-	mcmcobj->initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
-	mcmcobj->iniPara();	
+	bayesMP  mcmcobj;	
+	mcmcobj.initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj.iniPara();	
 	
 
 	
 	for(int b=0;b < *niter;b++){
-		mcmcobj->iterateOne();		
+		mcmcobj.iterateOne();		
 		//mcmcobj->paraSPrint();	
 		cout << "mcmc iter: " << b <<endl;
 	}
 
-	if(*HSall==1){mcmcobj->outputHSall(mcmcobj->GetHSallFileame());}
-	mcmcobj->printAcceptRate();
-	delete mcmcobj;
+	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
+	mcmcobj.printAcceptRate();
+	//delete mcmcobj;
 }
 
 extern "C" {
