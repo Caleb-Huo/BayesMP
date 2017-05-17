@@ -596,9 +596,13 @@ public:
 		poolY[lengthAparaList + 2] = aparaList.getNewMembership(-1);
 		poolYPr[lengthAparaList + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 				
-		for(int i=0;i<poolY.size();i++){
-			cout << "Y: "<< poolY[i]<<". prob: " <<poolYPr[i]<<endl;
-		}
+		if(g==0){
+			cout << "s: "<<s<<endl;
+			for(unsigned int i=0;i<poolY.size();i++){
+				cout << "Y: "<< poolY[i]<<". prob: " <<poolYPr[i]<<endl;
+			}
+			
+		}		
 		
 		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
 		int thisInt = distribution(generator);
