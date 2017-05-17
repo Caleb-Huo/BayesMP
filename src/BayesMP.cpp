@@ -456,7 +456,7 @@ public:
 	void iterateOne() {
 		int totalP = 0;
 		for(int s=0; s<S; s++){
-			totalP += bayesMPparaLists[s].getLength();
+			cout << "s: " s << "# para: " << bayesMPparaLists[s].getLength() << endl;
 		}
 	
 		for(int g=0; g<G; g++){
@@ -471,7 +471,6 @@ public:
 			updateGamma();			
 		}
 		cout << "gamma: " << gamma << endl;
-		cout << "totalP: " << totalP << endl;
 		
 		if(fullRes == 1){
 			appendFile(myStream, thisIter);
