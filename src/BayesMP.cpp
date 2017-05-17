@@ -432,6 +432,7 @@ public:
 					}														
 				}
 			} // for loop of l for lengthAparaList
+			bayesMPparaLists[s] = aparaList;
 		} // if(aY!=0)
 	}
 
@@ -456,6 +457,7 @@ public:
 		if(findFlag==0){
 			aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],aY));
 		}		
+		bayesMPparaLists[s] = aparaList;
 	}	
 
 	char * GetfullFilename(){
