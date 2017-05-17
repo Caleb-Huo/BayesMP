@@ -740,7 +740,7 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 		cout << "mcmc iter: " << b <<endl;
 	}
 
-	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
+	if(*HSall==1){mcmcobj->outputHSall(mcmcobj->GetHSallFileame());}
 	mcmcobj->printAcceptRate();
 	delete mcmcobj;
 }
