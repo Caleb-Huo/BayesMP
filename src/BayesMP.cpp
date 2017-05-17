@@ -730,18 +730,18 @@ public:
 void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 	
 	bayesMP * mcmcobj = new bayesMP;	
-	mcmcobj.initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
-	mcmcobj.updatePara();	
+	mcmcobj->initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj->updatePara();	
 
 	
 	for(int b=0;b < *niter;b++){
-		mcmcobj.iterateOne();		
+		mcmcobj->iterateOne();		
 		//mcmcobj->paraSPrint();	
 		cout << "mcmc iter: " << b <<endl;
 	}
 
 	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
-	mcmcobj.printAcceptRate();
+	mcmcobj->printAcceptRate();
 	delete mcmcobj;
 }
 
