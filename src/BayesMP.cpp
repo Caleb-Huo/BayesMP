@@ -378,10 +378,9 @@ public:
 						aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg]));
 					} else {
 						for(int l=0;l<lengthAparaList;l++){
-							if(Y[sGg]==aparaList.getPara(l).getMembership())
+							if(Y[sGg]==aparaList.paraList[l].getMembership())
 							{
 								aparaList.paraList[l].addZ(sGg, Z[sGg]);
-								cout << "get N: " << aparaList.paraList[l].GetN() << endl;
 								findFlag = 1;
 								break;
 							}
@@ -395,14 +394,14 @@ public:
 			/*
 			cout << "s = " << s << endl;
 			for(int l=0;l<aparaList.getLength();l++){
-				cout << "l = " << l << ". n: " << aparaList.getPara(l).GetN() << endl;
+				cout << "l = " << l << ". n: " << aparaList.paraList[l].GetN() << endl;
 			}
 			*/
 			bayesMPparaLists[s] = aparaList;			
 			/*
 			
 			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
-				cout << "l = " << l << ". n: " << bayesMPparaLists[s].getPara(l).GetN()  << endl;
+				cout << "l = " << l << ". n: " << bayesMPparaLists[s].paraList[l].GetN()  << endl;
 			}
 			*/
 		} // end of loop for s of S
@@ -416,8 +415,8 @@ public:
 			ParaList aparaList = bayesMPparaLists[s];
 			int lengthAparaList = aparaList.getLength();
 			for(int l=0;l<lengthAparaList;l++){
-				if(aY==aparaList.getPara(l).getMembership()){
-					int removeZStatus = aparaList.getPara(l).removeZ(sGg,Z[sGg]);
+				if(aY==aparaList.paraList[l].getMembership()){
+					int removeZStatus = aparaList.paraList[l].removeZ(sGg,Z[sGg]);
 					
 					if(removeZStatus==1){
 						return;
@@ -448,8 +447,8 @@ public:
 		ParaList aparaList = bayesMPparaLists[s];
 		int lengthAparaList = aparaList.getLength();
 		for(int l=0;l<lengthAparaList;l++){
-			if(aY==aparaList.getPara(l).getMembership()){
-				aparaList.getPara(l).addZ(sGg,Z[sGg]);
+			if(aY==aparaList.paraList[l].getMembership()){
+				aparaList.paraList[l].addZ(sGg,Z[sGg]);
 				findFlag = 1;
 				break;
 			}
@@ -585,7 +584,7 @@ public:
 		double aZ = Z[s*G + g];		
 
 		for(int l=0;l<lengthAparaList;l++){
-			Para apara = aparaList.getPara(l);
+			Para apara = aparaList.paraList[l];
 			poolY[l] = apara.getMembership();
 			
 			int n = apara.GetN();
@@ -744,6 +743,9 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 	
 	for(int b=0;b < *niter;b++){
 		mcmcobj->iterateOne();		
+		for(int s=0;s<3;s++){
+			cout<<"c print study "<< s << "para: " << mcmcobj->bayesMPparaLists[s].getLength()<<endl;					
+		}
 		//mcmcobj->paraSPrint();	
 		cout << "mcmc iter: " << b <<endl;
 	}
