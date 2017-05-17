@@ -727,11 +727,13 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 		mcmcobj.iterateOne();		
 		//mcmcobj->paraSPrint();	
 		cout << "mcmc iter: " << b <<endl;
+		/*
 		for(int s=0;s<3;s++){
 			cout<<"c print study "<< s << "para: " << mcmcobj.bayesMPparaLists[s].getLength()<<endl;					
 			cout<< "nSumP:" << mcmcobj.bayesMPparaLists[s].getParaSumNP() <<endl;
 			cout<< "nSumN:" << mcmcobj.bayesMPparaLists[s].getParaSumNN() <<endl;
 	    }
+		*/
 	}
 
 	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
