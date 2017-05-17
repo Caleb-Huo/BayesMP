@@ -3,13 +3,16 @@
 ##' implementation for BayesMP, MCMC part
 ##' @title MCMC for BayesMP
 ##' @param Z Z statistics. Z should be a p*n matrix.
-##' @param initial gamma Estimated null proportation.
+##' @param gamma initial gamma Estimated null proportation.
+##' @param randomGamma update gamma if true.
 ##' @param beta Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2
 ##' @param alpha Concentration parameter for DPs, default=1
 ##' @param mu0 Mean parameter for base function, default=0
 ##' @param sigma0 sqrt root of variance parameter for base function, default=10
 ##' @param sigma sqrt root of variance parameter for DP mixture component, default=1
 ##' @param trunc truncation parameter for base function (For both positive component and negative component), default=0
+##' @param empMu a vector of mean parameter for the null component, default is 0.
+##' @param empSD a vector of sd parameter for the null component, default is 1.
 ##' @param Pi initial pi (DE probablity vector), default rbeta(G, estGamma/(G-estGamma), 1)
 ##' @param delta initial delta (DE direction probablity vector), default rbeta(G, beta, beta)
 ##' @param Y initial component indicator. Y should be a p*n matrix. Y = ..., -2, -1, 0, 1, 2, ...
@@ -36,19 +39,16 @@
 ##' mcmc(Z)
 
 
-mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=NULL, Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
+mcmc <- function(Z, gamma=NULL, randomGamma = TRUE, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(1,ncol(Z)), Pi=NULL, delta=NULL, Y=NULL, niter=100, burnin=50, fileName='BayesMP_mcmc', fullRes=1, HSall=1){
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies
-	
-	if(is.null(gamma)){
-		w <- locfdr(Z, plot=0)
-		gamma <- 1 - w$fp0['mlest','p0']			
-	}
 
-	if(is.null(trunc)){
-		trunc <- apply(Z,2,function(x) abs(locfdr(x,plot=0)$fp0["mlest", "delta"]))
-	}
-	
+	if(is.null(gamma)){
+		pp <- pmin(pnorm(-abs(Z)) * 2, 1)
+		gamma <- max(1 - pi0est(pp)$pi0, 0.01)		
+	}	
+	cat("Initial gamma: ",gamma, "\n")
+
 	if(is.null(Pi)){
 		Pi <- rbeta(G, gamma, 1-gamma)
 	}
@@ -67,10 +67,11 @@ mcmc <- function(Z, gamma=NULL, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, tr
 	}
 		
 	keepTime <- system.time(
-		obj <- .C('mcmc_R2',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
+		obj <- .C('mcmc_R3',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),randomGamma=as.integer(randomGamma),
+				empMu=as.double(empMu), empSD=as.double(empSD),
+				beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
 				sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),delta=as.double(delta),Y=as.integer(Y0),
 				niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))
 		)
 	return(keepTime)
 }
-

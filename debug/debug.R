@@ -30,9 +30,12 @@ Z <- cbind(aZ, bZ, cZ)
 niter <- 1000
 burnin <- 50
 nsample <- niter - burnin
+<<<<<<< HEAD
+=======
 if(F){
   mcmc(Z,niter = 1000, burnin=50)
 }
+>>>>>>> master
 
 beta=1/2
 alpha=1
@@ -43,7 +46,7 @@ trunc=0.1
 Pi=NULL
 delta=NULL
 Y=NULL
-niter=1000
+niter=100
 burnin=50
 fileName='BayesMP_mcmc'
 fullRes=1
@@ -51,6 +54,12 @@ HSall=1
 
 G <- nrow(Z) ## number of genes
 S <- ncol(Z) ## number of studies
+
+pp <- pmin(pnorm(-abs(Z)) * 2, 1)
+gamma <- max(1 - qvalue::pi0est(pp)$pi0, 0.01)		
+randomGamma <- 1
+empMu <- rep(0,ncol(Z))
+empSD <- rep(1,ncol(Z))
 
 if(is.null(Pi)){
   Pi <- rbeta(G, gamma, 1-gamma)		
@@ -69,9 +78,15 @@ if(is.null(Y)){
   Y <- Y0		
 }
 
-obj <- .C('mcmc_R2',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
-          sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),delta=as.double(delta),Y=as.integer(Y0),
-          niter=as.integer(niter),burnin=as.integer(burnin),fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))
+obj <- .C('mcmc_R3',G=as.integer(G),S=as.integer(S),Z=as.double(Z),gamma=as.double(gamma),
+          randomGamma=as.integer(randomGamma),
+          empMu=as.double(empMu), empSD=as.double(empSD),
+          beta=as.double(beta),alpha=as.double(alpha),mu0=as.double(mu0),
+          sigma0=as.double(sigma0),sigma=as.double(sigma),trunc=as.double(trunc),pi=as.double(Pi),
+          delta=as.double(delta),Y=as.integer(Y0),
+          niter=as.integer(niter),burnin=as.integer(burnin),
+          fileName=as.character(fileName),fullRes=as.integer(fullRes),HSall=as.integer(HSall))
+
 
 if(F){
   BayesMP::mcmc(Z, estGamma, niter=niter, burnin=burnin)

@@ -8,104 +8,51 @@
 #include <R.h>
 #include <Rmath.h>
 #include <random>
+#include <algorithm>
 
 using namespace std;
 
-class indexC
-{
-	// a very simple dynamic link
-	int anum;
-public:
-	indexC *left, *right;
-	
-	indexC()
-	{
-		left=NULL;
-		right=NULL;		
-	}
-	
-	indexC(int bnum)
-	{
-		anum = bnum;
-		left=NULL;
-		right=NULL;		
-	}
-	
-	void setNum(int an){
-		anum = an;
-	}
-	
-	int getNum(){
-		return(anum);
-	}
-	
-};
-
-class para{
-	// de: 1: positive DE. -1: negative DE. 0: nonDE.
-	// mem: DP class: 1,2,3,...
+class Para{
+	// membership: DP class: 1,2,3,...: positive DE. -1,-2,-3...: negative DE. 0: nonDE.
 	// index: gene index.
 	// n: total number of genes.
-	int de, mem, n;
+	int membership, n;
 	// sumZ: sum of Z statistics
 	// postmu: posterior mu
 	// postsd: posterior sd
 	double sumZ, postmu, postsd, mu0, sigma0, sigma;
 	
 public:
-	// link
-	para *left, *right;
-	indexC * index;
+	std::vector<int> index;
 	
-	para()
+	//indexC * index;
+		
+	Para(double amu0, double asigma0, double asigma, int anum, double aZ, int amembership)
 	{
-		left=NULL;
-		right=NULL;
-	}
-	
-	para(double amu0, double asigma0, double asigma, int anum, double aZ, int ade, int amem)
-	{
-		de=ade;
-		mem=amem;
+		membership=amembership;
 		mu0=amu0;
 		sigma0=asigma0;
-		sigma=asigma;
-		index = new indexC(anum);
+		sigma=asigma;	    
+		index.push_back(anum);
+		//index = new indexC(anum);
 		sumZ = aZ;
 		n = 1;		
 		updateTheta();	
-		left=NULL;
-		right=NULL;
 	}
 
-	void setmem(int amember)
+	void setMembership(int amember)
 	{
-		mem = amember;
-	}
-
-	void setDE(int ade)
-	{
-		de = ade;
+		membership = amember;
 	}
 
 	int getMembership()
 	{
-		return(mem);
-	}
-
-	int getDE()
-	{
-		return(de);
+		return(membership);
 	}
 	
 	void addZ(int anum, double aZ)
 	{		
-		indexC * thisIndex = index;
-		while(thisIndex->right != NULL){
-			thisIndex = thisIndex->right;
-		}
-		thisIndex->right = new indexC(anum);
-		thisIndex->right->left = thisIndex;
+		index.push_back(anum);
 		sumZ = sumZ + aZ;
 		n = n + 1;
 		updateTheta();
@@ -114,36 +61,16 @@ public:
 	int removeZ(int anum, double aZ)
 	{		
 		// 0: nothing left. 1: successfully. 2; error: no such anum exist.
-		indexC * thisIndex = index;
-		int headPoint = 0;
+		index.erase(std::remove(index.begin(), index.end(), anum), index.end());
 		
-		while(thisIndex != NULL){
-			if(thisIndex->getNum()==anum)
-			{
-				if(thisIndex->left != NULL){
-					thisIndex->left->right = thisIndex->right;						
-				}
-				
-				if(thisIndex->right != NULL){
-					thisIndex->right->left = thisIndex->left;							
-				}
-				if(headPoint==0){
-					index = thisIndex->right;
-				}										
-				delete [] thisIndex;
-				sumZ = sumZ - aZ;
-				n = n - 1;
-				if(n==0)
-				{					
-					return 0;
-				}
-				updateTheta();
-				return 1;
-			}
-			thisIndex = thisIndex->right;
-			headPoint = headPoint + 1;
+		sumZ = sumZ - aZ;
+		n = n - 1;
+		if(n==0)
+		{					
+			return 0;
 		}
-		return 2;
+		updateTheta();
+		return 1;		
 	}
 
 	void updateTheta(){
@@ -180,35 +107,80 @@ public:
 	{
 		return(sigma0);
 	}
-
-	void freePara()
-	{
-		indexC * thisIndex;		
-		while(index != NULL){
-			thisIndex = index->right;
-			delete [] index;
-			index = thisIndex;
-		}		
-	}
-
 	
-/*	
-	~para(){
-		cout<<"such index doesn't exist, bug 2"<<endl;		
-		indexC * thisIndex;		
-		cout<<"such index doesn't exist, bug 3"<<endl;		
-		while(index != NULL){
-			cout<<"such index doesn't exist, bug 5"<<endl;			
-			thisIndex = index->right;
-			cout<<"such index doesn't exist, bug 6"<<endl;			
-			delete index;
-			cout<<"such index doesn't exist, bug 7"<<endl;			
-			index = thisIndex;
-			cout<<"such index doesn't exist, bug 8"<<endl;			
+};
+
+class ParaList{
+	int length;
+public:
+	std::vector<Para> paraList;	
+
+	ParaList(){
+		length = 0;
+	}
+	
+	void addPara(Para apara){
+		paraList.push_back(apara);
+		length++;
+	}
+	
+	int getLength(){
+		return(length);
+	}
+	
+	Para getPara(int l){
+		return(paraList[l]);
+	}	
+	
+	void erasePara(int l){
+		paraList.erase(paraList.begin() + l);
+		length--;
+	}	
+	
+	int getNewMembership(int direction){
+		int lengthAparaList = length;
+		int flag = 1;
+		int minMem = 1;
+		while(1){
+			flag = 1;
+			for(int l=0;l<lengthAparaList;l++){
+				int aMem = paraList[l].getMembership();
+				if(aMem * direction == minMem){
+					minMem++;
+					flag = 0;
+					break;
+				}			
+			}
+			if(flag){
+				return minMem*direction;
+			}			
 		}
 	}
-*/	
+	
+	int getParaSumNP(){
+		int sumN = 0;		
+		int lengthAparaList = length;
+		for(int l=0;l<lengthAparaList;l++){
+			if(paraList[l].getMembership()>0){
+				sumN += paraList[l].GetN();
+			}			
+		}
+		return sumN;
+	}
+
+	int getParaSumNN(){
+		int sumN = 0;		
+		int lengthAparaList = length;
+		for(int l=0;l<lengthAparaList;l++){
+			if(paraList[l].getMembership()<0){
+				sumN += paraList[l].GetN();
+			}			
+		}
+		return sumN;
+	}
+	
 };
+
 
 class bayesMP{
 	// dimension variables G: number of genes. S: number of studies.
@@ -218,6 +190,10 @@ class bayesMP{
 	std::vector<double> Z;
 	// gamma: prior for pi_g; beta: prior for delta_g; alpha: hyperparameter for DP; mu0: mean para for G0; sigma0: sd para for G0; sigma: sd for emission;
 	double gamma, beta, alpha, mu0, sigma0, sigma, trunc;
+	int randomGamma;
+	std::vector<double> empMu;
+	std::vector<double> empSD;
+	
 	int countAcceptGamma = 0;
 	// pi: prob gene g to be DE. delta: prob d DE gene to be positive.
 	std::vector<double> pi;
@@ -225,7 +201,6 @@ class bayesMP{
 	//double *pi, *delta;
 	// Y: latent variable to be infered.
 	std::vector<int> Y;
-	std::vector<int> Ymem;
 	//int *Y;
 	// whether directly output HSind result and HSall result
 	int fullRes, HSall;
@@ -236,6 +211,7 @@ class bayesMP{
 	char * fileFullRes;
 	char * fileHSall;
 	double MHsd = 0.1;
+	
 	
 	std::vector<int> YHSall;
 	//int *YHSall;
@@ -274,13 +250,21 @@ class bayesMP{
  	void SetY(int *aY){
 		Y = std::vector<int>(aY, aY + G*S);		
  	}
-	
- 	void SetIniYmem(){
-		Ymem = std::vector<int>(G*S,1);		
- 	}
-	
+
  	void SetGamma(double agamma){
 		gamma = agamma;		
+ 	}
+
+ 	void SetRandomGamma(double arandomGamma){
+		randomGamma = arandomGamma;		
+ 	}
+
+ 	void SetEmpMu(double *aempMu){
+		empMu = std::vector<double>(aempMu, aempMu + S);
+ 	}
+
+ 	void SetEmpSD(double *aempSD){
+		empSD = std::vector<double>(aempSD, aempSD + S);		
  	}
 
  	void SetBeta(double abeta){
@@ -340,17 +324,27 @@ class bayesMP{
 	    strcat(fileHSall,"HSall.txt");		
 	}
 	
+	void iniBayesMPparaLists(int S){
+		for(int s=0;s<S;s++){
+			bayesMPparaLists.push_back(ParaList());
+		}		
+	}
+	
 	
 public:
-	para ** paraObjS;						
 	
-	void initialize(int *aG, int *aS, double *aZ, double *agamma, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
+	std::vector<ParaList> bayesMPparaLists;
+		
+	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
 		SetG(*aG);
 		SetS(*aS);
 		SetZ(aZ);
 		//SetZZ(aZ);
 		SetGamma(*agamma);
+		SetRandomGamma(*randomGamma);
+		SetEmpMu(aempMu);
+		SetEmpSD(aempSD);
 		SetBeta(*abeta);
 		SetSigma0(*asigma0);
 		SetSigma(*asigma);
@@ -360,7 +354,6 @@ public:
 		SetPi(api);
 		SetDelta(adelta);
 		SetY(aY);
-		SetIniYmem();
 		SetnIter(*niter);
 		SetnBurnin(*burnin);
 		SetfullRes(*fullRes);
@@ -368,124 +361,98 @@ public:
 		SetfullFilename(filename);
 		SetHSallFileame(filename);	
 		iniYHSall();
+		iniBayesMPparaLists(S);
 		thisIter = 0;								
 	}
 	
-	void updatePara()
-	{
-		int findFlag;
-		paraObjS = new  para * [S];
-		for(int s=0;s<S;s++)
-		{			
-			para * sparaObj = NULL;
-			para * sparaPointer;
-			para * sparaPointer0;
-			for(int g=0;g<G;g++)
-			{
+		
+	void iniPara(){
+		for(int s=0;s<S;s++){
+			ParaList aparaList = bayesMPparaLists[s];
+			for(int g=0;g<G;g++){
+				int findFlag = 0;
 				int sGg = s*G+g;
-				if(sparaObj==NULL){
-					sparaObj = new para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg],Ymem[sGg]);	
-					paraObjS[s] = sparaObj;
-				}
-				else
-				{
-					findFlag = 0;
-					sparaPointer = sparaObj;
-					while(sparaPointer!=NULL)
-					{
-						if(Y[sGg]==sparaPointer->getDE() && Ymem[sGg]==sparaPointer->getMembership())
-						{
-							sparaPointer->addZ(sGg, Z[sGg]);
-							findFlag = 1;
-							break;
+				if(Y[sGg]!=0){
+					int lengthAparaList = aparaList.getLength();
+					if(lengthAparaList==0){
+						aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg]));
+					} else {
+						for(int l=0;l<lengthAparaList;l++){
+							if(Y[sGg]==aparaList.paraList[l].getMembership())
+							{
+								aparaList.paraList[l].addZ(sGg, Z[sGg]);
+								findFlag = 1;
+								break;
+							}
 						}
-						sparaPointer0 = sparaPointer;
-						sparaPointer = sparaPointer->right;						
-					}
-					if(findFlag==0)
-					{
-						sparaPointer0->right = new para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg],Ymem[sGg]);	
-						sparaPointer0->right->left = sparaPointer0;
-					}
-					
-				}
+						if(findFlag==0){
+							aparaList.addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],Y[sGg]));
+						}
+					} // if else 
+				} // end of if Y[sGg]!=0
+			} // end of loop for g of G
+			/*
+			cout << "s = " << s << endl;
+			for(int l=0;l<aparaList.getLength();l++){
+				cout << "l = " << l << ". n: " << aparaList.paraList[l].GetN() << endl;
 			}
-		}
+			*/
+			bayesMPparaLists[s] = aparaList;			
+			/*
+			
+			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
+				cout << "l = " << l << ". n: " << bayesMPparaLists[s].paraList[l].GetN()  << endl;
+			}
+			*/
+		} // end of loop for s of S
 	}
 	
-	void deletePara(int g, int s){
+	
+	void deletePara1(int g, int s){
 		int sGg = s*G+g;
 		int aY = Y[sGg];
-		int aYmem = Ymem[sGg];
-		int headPoint = 0;
-		para * sparaPointer = paraObjS[s];
-		while(sparaPointer!=NULL)
-		{
-			
-			if(sparaPointer->getDE() == aY && sparaPointer->getMembership() == aYmem)
-			{
-				int removeZStatus = sparaPointer->removeZ(sGg,Z[sGg]);
-				if(removeZStatus==1)
-				{
-					return;
-				} else if(removeZStatus==0)
-				{
-					if(sparaPointer->left != NULL){
-						sparaPointer->left->right = sparaPointer->right;						
-					}
-					
-					if(sparaPointer->right != NULL){
-						sparaPointer->right->left = sparaPointer->left;							
-					}
-					if(headPoint==0){
-						paraObjS[s] = sparaPointer->right;
-					}						
-					delete [] sparaPointer;						
-					return;
-					
-				} else if(removeZStatus==2)
-				{
-					cout<<"such index doesn't exist, bug 2"<<endl;
-					exit(0);
-				} else {
-					cout<<"unknown error, bug 0!"<<endl;
-					exit(0);
-				}										
-			}
-			sparaPointer = sparaPointer->right;
-			headPoint = headPoint + 1;
-		}
-		cout<<"no para class match current class label, bug 1!"<<endl;
-		exit(0);	
+		if(aY!=0){
+			int lengthAparaList = bayesMPparaLists[s].getLength();
+			for(int l=0;l<lengthAparaList;l++){
+				if(aY==bayesMPparaLists[s].paraList[l].getMembership()){
+					int removeZStatus = bayesMPparaLists[s].paraList[l].removeZ(sGg,Z[sGg]);					
+					if(removeZStatus==1){
+						return;
+					} else if(removeZStatus==0){
+						bayesMPparaLists[s].erasePara(l);					
+						return;
+					} else if(removeZStatus==2){
+						cout<<"such index doesn't exist, bug 2"<<endl;
+						exit(0);
+					} else {
+						cout<<"unknown error, bug 0!"<<endl;
+						exit(0);
+					}														
+				}
+			} // for loop of l for lengthAparaList
+		} // if(aY!=0)
 	}
 
-	void addPara(int g, int s){		
-		//cout<<"g:"<<g<<". s:"<<s<<endl;
+	void addPara1(int g, int s){		
 		int findFlag = 0;
-		int sGg=s*G+g;
+		int sGg = s*G+g;
 		int aY = Y[sGg];
-		int aYmem = Ymem[sGg];		
+
+		if(aY==0){
+			return;
+		}
 		
-		para * sparaPointer = paraObjS[s];
-		para * sparaPointer0;
-		
-		while(sparaPointer!=NULL)
-		{
-			if(sparaPointer->getDE() == aY && sparaPointer->getMembership() == aYmem)
-			{
-				sparaPointer->addZ(sGg, Z[sGg]);
+		int lengthAparaList = bayesMPparaLists[s].getLength();
+		for(int l=0;l<lengthAparaList;l++){
+			if(aY==bayesMPparaLists[s].paraList[l].getMembership()){
+				bayesMPparaLists[s].paraList[l].addZ(sGg,Z[sGg]);
 				findFlag = 1;
 				break;
 			}
-			sparaPointer0 = sparaPointer;
-			sparaPointer = sparaPointer->right;						
-		}
-		if(findFlag==0)
-		{
-			sparaPointer0->right = new para(mu0,sigma0,sigma,sGg,Z[sGg],aY, aYmem);
-			sparaPointer0->right->left = sparaPointer0;
-		}
-
+		} // for loop of l for lengthAparaList
+		if(findFlag==0){
+			bayesMPparaLists[s].addPara(Para(mu0,sigma0,sigma,sGg,Z[sGg],aY));
+		}		
 	}	
 
 	char * GetfullFilename(){
@@ -496,63 +463,31 @@ public:
 		return(fileHSall);
 	}
 
-
-	int getParaLength(int s){
-		para * sparaPointer = paraObjS[s];
-		int count = 0;
-		while(sparaPointer!=NULL)
-		{
-			count++;
-			sparaPointer = sparaPointer->right;
-		}
-		return count;
-	}
-
-	int getParaLength(int s, int direction){
-		para * sparaPointer = paraObjS[s];
-		int count = 0;
-		while(sparaPointer!=NULL)
-		{
-			if(sparaPointer->getDE()==direction){
-				count++;				
-			}
-			sparaPointer = sparaPointer->right;
-		}
-		return count;
-	}
-
-	int getParaSum(int s, int direction){
-		para * sparaPointer = paraObjS[s];
-		int sumN = 0;
-		while(sparaPointer!=NULL)
-		{
-			if(sparaPointer->getDE()==direction){
-				sumN += sparaPointer->GetN();				
-			}
-			sparaPointer = sparaPointer->right;
-		}
-		return sumN;
-	}
-
-
 	void iterateOne() {
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
 				updateOne(g,s);
 			}
-		}
+		}		
+		
 		updatePi();
 		updateHSall();	
-		updateGamma();
-		if(fullRes == 1){appendFile(myStream, thisIter);}
+		if(randomGamma == 1){
+			updateGamma();			
+		}
+		cout << "gamma: " << gamma << endl;
+		
+		if(fullRes == 1){
+			appendFile(myStream, thisIter);
+		}
 		thisIter++;
-			
 	}		
 		
+
 	void updateOne(int g, int s) {
-		deletePara(g, s);
+		deletePara1(g, s);
 		updateMembership(g ,s);
-		addPara(g, s);
+		addPara1(g, s);
 	}
 	
 	void updateHSall(){
@@ -606,19 +541,6 @@ public:
 		
 	}
 
-	double fnull(double x, double mu0, double sigma0, double sigma, double trunc)
-	{
-		double s0 = sigma*sigma + sigma0*sigma0;
-		double s1 = 1/(sigma*sigma) + 1/(sigma0*sigma0);
-		double s2 = x/(sigma*sigma) + mu0/(sigma0*sigma0);
-		
-		double a = dnorm(x, mu0, sqrt(s0), 0);
-		double b = pnorm(trunc, s2/s1, 1/sqrt(s1) , 1, 0) - pnorm(-trunc, s2/s1, 1/sqrt(s1) , 1, 0);
-		double c = pnorm(trunc, s2/s1, 1/sqrt(s1) , 1, 0) - pnorm(-trunc, mu0, sigma0, 1, 0);
-		
-		return(a*b/c);
-	}
-
 	double falp(double x, double mu0, double sigma0, double sigma, double trunc)
 	{
 		double s0 = sigma*sigma + sigma0*sigma0;
@@ -646,65 +568,47 @@ public:
 	}
 
 	void updateMembership(int g ,int s){	
-		para * sparaPointer = paraObjS[s];	
-		int tracei;	
-		int sparalength = getParaLength(s);	
 		
-		int nSumP = getParaSum(s,1);
-		int nSumN = getParaSum(s,-1);
-		int nSum0 = getParaSum(s,0);
+		ParaList aparaList = bayesMPparaLists[s];
+		int lengthAparaList = aparaList.getLength();
+		int nSumP = aparaList.getParaSumNP();
+		int nSumN = aparaList.getParaSumNN();
+		int totalLength = lengthAparaList + 1 + 2;
 
-		int totalLength = sparalength + 3;
 		std::vector<double> poolYPr(totalLength, 0);
 		std::vector<int> poolY(totalLength, 0);
-		std::vector<int> poolYmem(totalLength, 0);
-				
-		double aZ = Z[s*G + g];
-				
-		for(int i=0;i<sparalength;i++)
-		{
-			poolY[i] = sparaPointer->getDE();
-			poolYmem[i] = sparaPointer->getMembership();
-			
-			int n = sparaPointer->GetN();
-			double postmu = sparaPointer->Getpostmu();
-			double postsd = sparaPointer->Getpostsd();			
-					
-			if(poolY[i] == 1){				
-				poolYPr[i] = falp(aZ, postmu, postsd, sigma, trunc) * n / (nSumP + alpha) * pi[g] * delta[g];												
-			} else if(poolY[i] == -1) {
-				poolYPr[i] = faln(aZ, postmu, postsd, sigma, trunc) * n / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
-			} else if(poolY[i] == 0){
-				poolYPr[i] = fnull(aZ, postmu, postsd, sigma, trunc) * n / (nSum0 + alpha) * (1 - pi[g]);	
-			} else {
-				cout<<"no such Y, bug sampling"<<endl;
-				exit(0);
-			}
-			tracei = i;
-			sparaPointer = sparaPointer->right;
-		}
-				
-		poolY[++tracei] = 1;
-		poolYmem[tracei] = getParaLength(s, 1) + 1;
-		poolYPr[tracei] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
-		
-		poolY[++tracei] = -1;
-		poolYmem[tracei] = getParaLength(s, -1) + 1;
-		poolYPr[tracei] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 
-		poolY[++tracei] = 0;
-		poolYmem[tracei] = getParaLength(s, 0) + 1;
-		poolYPr[tracei] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSum0 + alpha) * (1 - pi[g]);	
+		double aZ = Z[s*G + g];		
+
+		for(int l=0;l<lengthAparaList;l++){
+			Para apara = aparaList.paraList[l];
+			poolY[l] = apara.getMembership();
+			
+			int n = apara.GetN();
+			double postmu = apara.Getpostmu();
+			double postsd = apara.Getpostsd();			
+			
+			if(poolY[l] > 0){				
+				poolYPr[l] = falp(aZ, postmu, postsd, sigma, trunc) * n / (nSumP + alpha) * pi[g] * delta[g];												
+			} else {
+				poolYPr[l] = faln(aZ, postmu, postsd, sigma, trunc) * n / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
+			}
+			
+		} // for loop of l for lengthAparaList
 		
-	    vector<double> vectorPr;
-		for(int i=0;i<totalLength;i++){
-			vectorPr.push_back(poolYPr[i]);
-		}
-		
-		discrete_distribution<int> distribution(vectorPr.begin(), vectorPr.end());
+		// 0: normal 0,1;
+		poolY[lengthAparaList] = 0;
+		// here null component is a standard normal distribution.
+		poolYPr[lengthAparaList] = dnorm(aZ, empMu[s], empSD[s], 0) * (1 - pi[g]);
+				
+		poolY[lengthAparaList + 1] = aparaList.getNewMembership(1);
+		poolYPr[lengthAparaList + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
+		poolY[lengthAparaList + 2] = aparaList.getNewMembership(-1);
+		poolYPr[lengthAparaList + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
+						
+		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
-		Ymem[s*G + g] = poolYmem[thisInt];				
 	}
 	
 		
@@ -718,9 +622,9 @@ public:
 		double Yplus = 0;
 		double Yminus = 0;
 		for(int s=0; s<S;s++){
-			if(Y[s*G+g]==1){
+			if(Y[s*G+g]>0){
 				Yplus++;
-			} else if(Y[s*G+g]==-1){
+			} else if(Y[s*G+g]<0){
 				Yminus++;
 			}
 		}
@@ -737,7 +641,7 @@ public:
 	
 	double binrarySearch(vector<double>& pig)
 	{
-	  double tol = 1.0/1000000;
+	  double tol = 1.0/1e8;
 	  double gammaLeft = tol;
 	  double gammaRight = 1 - tol;
 	  double gammaMiddle;
@@ -791,37 +695,11 @@ public:
 		cout << "mcmc accepted iter: " << countAcceptGamma	 <<endl;		
 		cout << "mcmc final gamma: " << gamma	 <<endl;		
 	}	
+	
 	bayesMP(){
 		cout<<"hi, I am constructing a BayesMP obj"<<endl;
 	}
 	
-	void paraSPrint(){
-		for(int s=0; s<S; s++){
-			para * thisparaobj = paraObjS[s];
-			while(thisparaobj!=NULL)
-			{
-				cout<<"study"<<s<<"GetMember: "<<thisparaobj->getMembership()<<". GetSumZ: "<<thisparaobj->GetSumZ()<<". GetN: "<<thisparaobj->GetN()<<endl;				
-				thisparaobj = thisparaobj->right;
-			}
-		}
-		cout<<endl;
-	}
-	
-	void freeBayesMP()
-	{
-		para * sparaPointer;
-		para * sparaPointerD;
-		for(int s=0; s<S; s++){
-			sparaPointer = paraObjS[s];
-			sparaPointerD = sparaPointer;
-			while(sparaPointer != NULL){
-				sparaPointer = sparaPointerD->right;
-				sparaPointerD->freePara();
-				delete [] sparaPointerD;
-				sparaPointerD = sparaPointer;		
-			}					
-		}				
-	}
 	
 	~bayesMP(){
 		//≤delete [] Z;
@@ -831,40 +709,41 @@ public:
 		//delete [] YHSall;
 		delete [] fileFullRes;
 		delete [] fileHSall;
-		delete [] paraObjS;		
+		cout<<"BayesMP destroyed"<<endl;
 	}
 	
 	
 };
 
-void mcmc(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
-
-		
-	bayesMP * mcmcobj = new bayesMP;
-	mcmcobj->initialize(G,S,Z,gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
-    cout << "here 1 " <<endl;
-
-	mcmcobj->updatePara();
+void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
 	
-    cout << "here 2 " <<endl;
+	bayesMP  mcmcobj;	
+	mcmcobj.initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj.iniPara();	
+	
+
 	
 	for(int b=0;b < *niter;b++){
-		mcmcobj->iterateOne();		
+		mcmcobj.iterateOne();		
 		//mcmcobj->paraSPrint();	
 		cout << "mcmc iter: " << b <<endl;
+		/*
+		for(int s=0;s<3;s++){
+			cout<<"c print study "<< s << "para: " << mcmcobj.bayesMPparaLists[s].getLength()<<endl;					
+			cout<< "nSumP:" << mcmcobj.bayesMPparaLists[s].getParaSumNP() <<endl;
+			cout<< "nSumN:" << mcmcobj.bayesMPparaLists[s].getParaSumNN() <<endl;
+	    }
+		*/
 	}
 
-	if(*HSall==1){mcmcobj->outputHSall(mcmcobj->GetHSallFileame());}
-	mcmcobj->printAcceptRate();
-	mcmcobj->freeBayesMP();
-	delete mcmcobj;
-		
+	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
+	mcmcobj.printAcceptRate();
+	//delete mcmcobj;
 }
 
 extern "C" {
-	void mcmc_R2(int *G, int *S, double *Z, double *gamma, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
-		mcmc(G, S, Z, gamma, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
+	void mcmc_R3(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
+		mcmc(G, S, Z, gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
 	}
 }
-
 

@@ -12,7 +12,7 @@ clustered meta-patterns of differential expression signals. }
 \tabular{ll}{
 Package: \tab BayesMP\cr
 Type: \tab Package\cr
-Version: \tab 0.0.2\cr
+Version: \tab 0.0.6\cr
 Date: \tab 2015-08-16\cr
 License: \tab GPL-3\cr
 }
