@@ -422,7 +422,9 @@ public:
 						return;
 					} else if(removeZStatus==0){
 						cout<<"yes, here to remove a para!"<<endl;
+						cout<<"aparaList length before remove: " << aparaList.getLength()<<endl;
 						aparaList.erasePara(l);					
+						cout<<"aparaList length after remove: " << aparaList.getLength()<<endl;
 						return;
 					} else if(removeZStatus==2){
 						cout<<"such index doesn't exist, bug 2"<<endl;
