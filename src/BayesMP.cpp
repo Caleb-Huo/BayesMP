@@ -379,8 +379,8 @@ public:
 						for(int l=0;l<lengthAparaList;l++){
 							if(Y[sGg]==aparaList.getPara(l).getMembership())
 							{
-								aparaList.getPara(l).addZ(sGg, Z[sGg]);
-								cout << "get N: " << aparaList.getPara(l).GetN() << endl;
+								aparaList.paraList[l].addZ(sGg, Z[sGg]);
+								cout << "get N: " << aparaList.paraList[l].GetN() << endl;
 								findFlag = 1;
 								break;
 							}
