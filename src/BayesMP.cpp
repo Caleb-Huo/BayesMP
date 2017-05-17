@@ -380,7 +380,7 @@ public:
 							if(Y[sGg]==aparaList.getPara(l).getMembership())
 							{
 								aparaList.getPara(l).addZ(sGg, Z[sGg]);
-								aparaList.getPara(l).GetN();
+								cout << "get N: " aparaList.getPara(l).GetN() << endl;
 								findFlag = 1;
 								break;
 							}
