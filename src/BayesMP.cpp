@@ -112,6 +112,9 @@ public:
 
 class ParaList{
 	int length;
+	int newMemPlus;
+	int newMemMinus;
+
 public:
 	std::vector<Para> paraList;	
 
@@ -138,23 +141,54 @@ public:
 	}	
 	
 	int getNewMembership(int direction){
+		if(direction == 1){
+			return newMemPlus;
+		} else if(direction == -1){
+			return newMemMinus;
+		} 
+		cout << "error: no such direction!" << endl;
+		return 0;
+	}
+
+	void updateNewMembership(int direction){
 		int lengthAparaList = length;
 		int flag = 1;
-		int minMem = 1;
-		while(1){
-			flag = 1;
-			for(int l=0;l<lengthAparaList;l++){
-				int aMem = paraList[l].getMembership();
-				if(aMem * direction == minMem){
-					minMem++;
-					flag = 0;
-					break;
+
+		if(direction == 1){
+			int minMem = 1;
+			while(1){
+				flag = 1;
+				for(int l=0;l<lengthAparaList;l++){
+					int aMem = paraList[l].getMembership();
+					if(aMem == minMem || aMem == newMemPlus){
+						minMem++;
+						flag = 0;
+						break;
+					}			
+				}
+				if(flag){
+					newMemPlus = minMem;
 				}			
 			}
-			if(flag){
-				return minMem*direction;
-			}			
-		}
+			
+		} else if(direction == -1){
+			int minMem = -1;
+			while(1){
+				flag = 1;
+				for(int l=0;l<lengthAparaList;l++){
+					int aMem = paraList[l].getMembership();
+					if(aMem == minMem || aMem == newMemMinus){
+						minMem--;
+						flag = 0;
+						break;
+					}			
+				}
+				if(flag){
+					newMemMinus = minMem;
+				}			
+			}
+		} 
+
 	}
 	
 	int getParaSumNP(){
@@ -600,15 +634,26 @@ public:
 		poolY[lengthAparaList] = 0;
 		// here null component is a standard normal distribution.
 		poolYPr[lengthAparaList] = dnorm(aZ, empMu[s], empSD[s], 0) * (1 - pi[g]);
+		
+
+		aNewMemPlus <- aparaList.getNewMembership(1);
+		aNewMemMinus <- aparaList.getNewMembership(-1);
 				
-		poolY[lengthAparaList + 1] = aparaList.getNewMembership(1);
+		poolY[lengthAparaList + 1] = aNewMemPlus
 		poolYPr[lengthAparaList + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
-		poolY[lengthAparaList + 2] = aparaList.getNewMembership(-1);
+		poolY[lengthAparaList + 2] = aNewMemMinus
 		poolYPr[lengthAparaList + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 						
 		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
+
+		if(thisInt == aNewMemPlus){
+			bayesMPparaLists[s].updateNewMembership(1);
+		} else if(thisInt == aNewMemMinus){
+			bayesMPparaLists[s].updateNewMembership(-1);			
+		}
+		
 	}
 	
 		
