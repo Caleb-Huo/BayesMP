@@ -636,12 +636,12 @@ public:
 		poolYPr[lengthAparaList] = dnorm(aZ, empMu[s], empSD[s], 0) * (1 - pi[g]);
 		
 
-		aNewMemPlus <- aparaList.getNewMembership(1);
-		aNewMemMinus <- aparaList.getNewMembership(-1);
+		int aNewMemPlus <- aparaList.getNewMembership(1);
+		int aNewMemMinus <- aparaList.getNewMembership(-1);
 				
-		poolY[lengthAparaList + 1] = aNewMemPlus
+		poolY[lengthAparaList + 1] = aNewMemPlus;
 		poolYPr[lengthAparaList + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
-		poolY[lengthAparaList + 2] = aNewMemMinus
+		poolY[lengthAparaList + 2] = aNewMemMinus;
 		poolYPr[lengthAparaList + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 						
 		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
