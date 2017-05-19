@@ -723,6 +723,13 @@ public:
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
 		
+		if(g==1 && s==0){
+			for(int i=0;i<totalLength;i++){
+				cout << "poolY: " << poolY[i] << ". poolYPr: " << poolYPr[i] << endl;
+			}
+			
+		}
+		
 		delete [] poolYPr;
 		delete [] poolY;
 	}
