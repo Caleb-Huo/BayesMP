@@ -696,6 +696,13 @@ public:
 		poolY[0] = 0;
 		// here null component is a standard normal distribution.
 		poolYPr[0] = dnorm(aZ, empMu[s], empSD[s], 0) * (1 - pi[g]);
+		if(g==1 && s==0){
+			cout << "poolYPr[0]: " << poolYPr[0] << endl;
+			cout << "sparalength: " << sparalength << endl;
+			cout << "nSumP: " << nSumP << endl;
+			cout << "nSumN: " << nSumN << endl;
+			cout << "totalLength: " << totalLength << endl;
+		}
 		
 		for(int i=1;i<=sparalength;i++)
 		{
@@ -715,7 +722,7 @@ public:
 		poolY[sparalength + 1] = getNewMembership(s,1);
 		poolYPr[sparalength + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
 		poolY[sparalength + 2] = getNewMembership(s,-1);
-		poolYPr[sparalength + 1] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
+		poolYPr[sparalength + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 				
 		vector<double> vectorPr = std::vector<double>(poolYPr, poolYPr + totalLength);;
 				
@@ -723,12 +730,14 @@ public:
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
 		
+		/*
 		if(g==1 && s==0){
 			for(int i=0;i<totalLength;i++){
 				cout << "poolY: " << poolY[i] << ". poolYPr: " << poolYPr[i] << endl;
 			}
 			
 		}
+		*/
 		
 		delete [] poolYPr;
 		delete [] poolY;
