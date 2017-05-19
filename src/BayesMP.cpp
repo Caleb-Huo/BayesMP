@@ -210,6 +210,9 @@ class bayesMP{
 	std::vector<double> empMu;
 	std::vector<double> empSD;
 	
+	std::vector<int> newMemPlus = std::vector<int>(S, 2);				
+	std::vector<int> newMemMinus = std::vector<int>(S, -2);				
+	
 	int countAcceptGamma = 0;
 
 	// pi: prob gene g to be DE. delta: prob d DE gene to be positive.
@@ -500,7 +503,7 @@ public:
 		if(direction==1){
 			int i = 1;
 			while(sparaPointer!=NULL){
-				if(sparaPointer->getMembership() == i){
+				if(sparaPointer->getMembership() == i || newMemPlus[s] == i){
 					i++;
 					sparaPointer = sparaPointer0;				
 				} else {
@@ -511,7 +514,7 @@ public:
 		} else if(direction==-1) {
 			int i = -1;
 			while(sparaPointer!=NULL){
-				if(sparaPointer->getMembership() == i){
+				if(sparaPointer->getMembership() == i || newMemMinus[s] == i){
 					i--;
 					sparaPointer = sparaPointer0;				
 				} else {
@@ -728,9 +731,9 @@ public:
 			}
 			sparaPointer = sparaPointer->right;
 		}
-		poolY[sparalength + 1] = getNewMembership(s,1);
+		poolY[sparalength + 1] = newMemPlus[s];
 		poolYPr[sparalength + 1] = falp(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumP + alpha) * pi[g] * delta[g];								
-		poolY[sparalength + 2] = getNewMembership(s,-1);
+		poolY[sparalength + 2] = newMemMinus[s];
 		poolYPr[sparalength + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 				
 		//vector<double> vectorPr = std::vector<double>(poolYPr, poolYPr + totalLength);;				
@@ -738,6 +741,12 @@ public:
 		discrete_distribution<int> distribution(poolYPr, poolYPr + totalLength);
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
+		
+		if(poolY[thisInt] == newMemPlus[s]){
+			newMemPlus[s] = getNewMembership(s,1);
+		} else if(poolY[thisInt] == newMemMinus[s]){
+			newMemMinus[s] = getNewMembership(s,-1);
+		}
 		
 		/*
 		if(g==1 && s==0){
