@@ -8,6 +8,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include <random>
+#include <ctime>
 
 using namespace std;
 
@@ -575,9 +576,21 @@ public:
 	}		
 		
 	void updateOne(int g, int s) {
+		int start_s;
+		int stop_s;
+					 
+		start_s=clock();
 		deletePara(g, s);
+		stop_s=clock();
+		cout << "time deletePara: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		start_s=clock();
 		updateMembership(g ,s);
+		stop_s=clock();
+		cout << "time updateMembership: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
+		start_s=clock();
 		addPara(g, s);
+		stop_s=clock();
+		cout << "time addPara: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << endl;
 	}
 	
 	void updateHSall(){
