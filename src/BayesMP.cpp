@@ -461,7 +461,7 @@ public:
 		}
 		
 		para * sparaPointer = paraObjS[s];
-		para * sparaPointer0;
+		para * sparaPointer0 = sparaPointer;
 		
 		while(sparaPointer!=NULL)
 		{

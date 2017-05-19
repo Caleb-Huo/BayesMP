@@ -4,15 +4,18 @@
 \alias{mcmc}
 \title{MCMC for BayesMP}
 \usage{
-mcmc(Z, gamma, beta = 1/2, alpha = 1, mu0 = 0, sigma0 = 10, sigma = 1,
-  trunc = 0, Pi = NULL, delta = NULL, Y = NULL, niter = 100,
-  burnin = 50, fileName = "BayesMP_mcmc", fullRes = 1, HSall = 1,
-  aveCom = 0)
+mcmc(Z, gamma = NULL, randomGamma = TRUE, beta = 1/2, alpha = 1,
+  mu0 = 0, sigma0 = 10, sigma = 1, trunc = 0, empMu = rep(0, ncol(Z)),
+  empSD = rep(1, ncol(Z)), Pi = NULL, delta = NULL, Y = NULL,
+  niter = 100, burnin = 50, fileName = "BayesMP_mcmc", fullRes = 1,
+  HSall = 1)
 }
 \arguments{
 \item{Z}{Z statistics. Z should be a p*n matrix.}
 
-\item{gamma}{Estimated null proportation.}
+\item{gamma}{initial gamma Estimated null proportation.}
+
+\item{randomGamma}{update gamma if true.}
 
 \item{beta}{Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2}
 
@@ -25,6 +28,10 @@ mcmc(Z, gamma, beta = 1/2, alpha = 1, mu0 = 0, sigma0 = 10, sigma = 1,
 \item{sigma}{sqrt root of variance parameter for DP mixture component, default=1}
 
 \item{trunc}{truncation parameter for base function (For both positive component and negative component), default=0}
+
+\item{empMu}{a vector of mean parameter for the null component, default is 0.}
+
+\item{empSD}{a vector of sd parameter for the null component, default is 1.}
 
 \item{Pi}{initial pi (DE probablity vector), default rbeta(G, estGamma/(G-estGamma), 1)}
 
@@ -41,8 +48,6 @@ mcmc(Z, gamma, beta = 1/2, alpha = 1, mu0 = 0, sigma0 = 10, sigma = 1,
 \item{fullRes}{binary: 0: do not save full mcmc results; 1: save full mcmc results.}
 
 \item{HSall}{binary: 0: do not save hypothesis HS results; 1: save hypothesis HS results.}
-
-\item{aveCom}{binary: 0: do not save average DP component results; 1: save average DP component results. This argument will be elimated in the next version.}
 }
 \value{
 computing time
@@ -65,10 +70,7 @@ set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 G <- nrow(Z)
-delta <- 0.4
-nullProp <- estimateNull_Efron_delta(Z, delta)
-estGamma <- mean(1 - nullProp) * G
-mcmc(Z, estGamma)
+mcmc(Z)
 }
 \author{
 Zhiguang Huo

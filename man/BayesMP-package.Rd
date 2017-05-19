@@ -44,15 +44,13 @@ set.seed(15215)
 cZ <- c(rnorm(n1),rnorm(n2,3)*sample(c(1,-1),n2,replace=TRUE))
 Z <- cbind(aZ, bZ, cZ)
 G <- nrow(Z)
-delta <- 0.4
-nullProp <- estimateNull_Efron_delta(Z, delta)
-estGamma <- mean(1 - nullProp) * G
+
 
 niter <- 100
 burnin <- 50
 nsample <- niter - burnin
 
-mcmc(Z, estGamma, niter=niter, burnin=burnin)
+mcmc(Z, niter=niter, burnin=burnin)
 
 HSallRes <- read.table('BayesMP_mcmcHSall.txt')
 
@@ -106,6 +104,7 @@ close(con)
 ## tight clustering
 dissimilarity <- distance(resYplus, resYminus, nsample)
 tightClustResult <- tightClustPam(dissimilarity, target=2, k.min=10)
+
 
 
 }
