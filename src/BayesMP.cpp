@@ -687,8 +687,8 @@ public:
 		int nSumN = getParaSumNN(s);
 		int totalLength = sparalength + 1 + 2;
 
-		std::vector<double> poolYPr(totalLength, 0);
-		std::vector<int> poolY(totalLength, 0);
+		double * poolYPr = new double [totalLength]();
+		int * poolY = new int [totalLength]();
 				
 		double aZ = Z[s*G + g];
 		
@@ -727,9 +727,10 @@ public:
 		poolY[sparalength + 2] = getNewMembership(s,-1);
 		poolYPr[sparalength + 2] = faln(aZ, mu0, sigma0, sigma, trunc) * alpha / (nSumN + alpha) * pi[g] * (1 - delta[g]);	
 				
-		//vector<double> vectorPr = std::vector<double>(poolYPr, poolYPr + totalLength);;
+		vector<double> vectorPr = std::vector<double>(poolYPr, poolYPr + totalLength);;
 				
-		discrete_distribution<int> distribution(poolYPr.begin(), poolYPr.end());
+		//discrete_distribution<int> distribution(vectorPr.begin(), vectorPr.end());
+		discrete_distribution<int> distribution(poolYPr, poolYPr + totalLength);
 		int thisInt = distribution(generator);
 		Y[s*G + g] = poolY[thisInt];
 		
@@ -740,9 +741,10 @@ public:
 			}
 			
 		}
+		*/
+		
 		delete [] poolYPr;
 		delete [] poolY;
-		*/		
 	}
 	
 		
