@@ -172,6 +172,7 @@ public:
 				}
 				if(flag){
 					newMemPlus = minMem;
+					break;
 				}			
 			}
 			
@@ -189,6 +190,7 @@ public:
 				}
 				if(flag){
 					newMemMinus = minMem;
+					break;					
 				}			
 			}
 		} 
