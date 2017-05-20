@@ -210,8 +210,8 @@ class bayesMP{
 	std::vector<double> empMu;
 	std::vector<double> empSD;
 	
-	std::vector<int> newMemPlus = std::vector<int>(S, 2);				
-	std::vector<int> newMemMinus = std::vector<int>(S, -2);				
+	std::vector<int> newMemPlus = std::vector<int>(S, 1);				
+	std::vector<int> newMemMinus = std::vector<int>(S, -1);				
 	
 	int countAcceptGamma = 0;
 
@@ -406,6 +406,8 @@ public:
 					}
 				}
 			}
+			newMemPlus[s] = getNewMembership(s,1);
+			newMemMinus[s] = getNewMembership(s,-1);			
 		}
 	}
 	
