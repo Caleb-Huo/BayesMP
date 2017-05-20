@@ -110,6 +110,8 @@ public:
 	
 };
 
+
+
 class ParaList{
 	int length;
 	int newMemPlus;
@@ -120,6 +122,8 @@ public:
 
 	ParaList(){
 		length = 0;
+		newMemPlus = 1;
+		newMemMinus = -1;
 	}
 	
 	void addPara(Para apara){
@@ -362,6 +366,7 @@ class bayesMP{
 		for(int s=0;s<S;s++){
 			bayesMPparaLists.push_back(ParaList());
 		}		
+		
 	}
 	
 	
@@ -431,7 +436,10 @@ public:
 				cout << "l = " << l << ". n: " << aparaList.paraList[l].GetN() << endl;
 			}
 			*/
-			bayesMPparaLists[s] = aparaList;			
+			aparaList.updateNewMembership(1);
+			aparaList.updateNewMembership(-1);			
+			bayesMPparaLists[s] = aparaList;		
+				
 			/*
 			
 			for(int l=0;l<bayesMPparaLists[s].getLength();l++){
