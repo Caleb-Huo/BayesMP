@@ -158,12 +158,18 @@ public:
 		int lengthAparaList = length;
 		int flag = 1;
 
+		cout <<"lengthAparaList: " << lengthAparaList << endl;
+		
 		if(direction == 1){
 			int minMem = 1;
 			while(1){
 				flag = 1;
 				for(int l=0;l<lengthAparaList;l++){
 					int aMem = paraList[l].getMembership();
+					cout <<"aMem: " << aMem << endl;
+					cout <<"minMem: " << minMem << endl;
+					cout <<"newMemPlus: " << newMemPlus << endl;
+					
 					if(aMem == minMem || aMem == newMemPlus){
 						minMem++;
 						flag = 0;
