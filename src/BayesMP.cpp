@@ -157,8 +157,6 @@ public:
 	void updateNewMembership(int direction){
 		int lengthAparaList = length;
 		int flag = 1;
-
-		cout <<"lengthAparaList: " << lengthAparaList << endl;
 		
 		if(direction == 1){
 			int minMem = 1;
@@ -166,11 +164,7 @@ public:
 				flag = 1;
 				for(int l=0;l<lengthAparaList;l++){
 					int aMem = paraList[l].getMembership();
-					cout <<"aMem: " << aMem << endl;
-					cout <<"minMem: " << minMem << endl;
-					cout <<"newMemPlus: " << newMemPlus << endl;
-					
-					if(aMem == minMem || aMem == newMemPlus){
+					if(aMem == minMem || minMem == newMemPlus){
 						minMem++;
 						flag = 0;
 						break;
@@ -188,7 +182,7 @@ public:
 				flag = 1;
 				for(int l=0;l<lengthAparaList;l++){
 					int aMem = paraList[l].getMembership();
-					if(aMem == minMem || aMem == newMemMinus){
+					if(aMem == minMem || minMem == newMemMinus){
 						minMem--;
 						flag = 0;
 						break;
