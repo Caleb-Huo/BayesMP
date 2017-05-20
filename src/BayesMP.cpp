@@ -438,9 +438,13 @@ public:
 				cout << "l = " << l << ". n: " << aparaList.paraList[l].GetN() << endl;
 			}
 			*/
+			cout <<"here 1" << endl;
 			aparaList.updateNewMembership(1);
+			cout <<"here 2" << endl;
 			aparaList.updateNewMembership(-1);			
+			cout <<"here 3" << endl;
 			bayesMPparaLists[s] = aparaList;		
+			cout <<"here 4" << endl;
 				
 			/*
 			
