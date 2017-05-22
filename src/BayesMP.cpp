@@ -641,7 +641,7 @@ public:
 		start_s=clock();
 		deletePara(g, s);
 		stop_s=clock();
-		time_add += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+		time_delete += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
 		start_s=clock();
 		updateMembership(g ,s);
 		stop_s=clock();
@@ -649,7 +649,7 @@ public:
 		start_s=clock();
 		addPara(g, s);
 		stop_s=clock();
-		time_delete += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+		time_add += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
 		
 		/*
 		deletePara(g, s);
