@@ -334,9 +334,9 @@ class bayesMP{
 	
 public:
 	para ** paraObjS;						
-	//double time_add;
-	//double time_update;
-	//double time_delete;
+	double time_add;
+	double time_update;
+	double time_delete;
 	
 	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
@@ -576,6 +576,10 @@ public:
 		double time_updateGamma;
 		double time_appendFile;
 		
+		time_add = 0;
+		time_update = 0;
+		time_delete = 0;
+	
 		int start_s;
 		int stop_s;
 		
@@ -611,8 +615,11 @@ public:
 		time_appendFile = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
 
 		thisIter++;
-			
+					
 		cout << "time_updateOne: " << time_updateOne << endl;
+		cout << "time_add: " << time_add << endl;
+		cout << "time_update: " << time_update << endl;
+		cout << "time_delete: " << time_delete << endl;
 		cout << "time_updatePi: " << time_updatePi<< endl;
 		cout << "time_updateHSall: " << time_updateHSall << endl;
 		cout << "time_updateGamma: " << time_updateGamma << endl;
@@ -628,7 +635,6 @@ public:
 	}		
 		
 	void updateOne(int g, int s) {
-		/*
 		int start_s;
 		int stop_s;
 		
@@ -644,11 +650,12 @@ public:
 		addPara(g, s);
 		stop_s=clock();
 		time_delete += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
-		*/
 		
+		/*
 		deletePara(g, s);
 		updateMembership(g ,s);
 		addPara(g, s);
+		*/
 		
 	}
 	
