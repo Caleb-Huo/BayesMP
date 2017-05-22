@@ -623,6 +623,7 @@ public:
 			totalPara += getParaLength(s);
 		}
 		cout << "total # para: " << totalPara << endl;		
+		cout << "gamma: " << gamma << endl;		
 		
 	}		
 		
