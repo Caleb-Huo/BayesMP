@@ -8,7 +8,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include <random>
-// #include <ctime>
+#include <ctime>
 
 using namespace std;
 
@@ -210,8 +210,8 @@ class bayesMP{
 	std::vector<double> empMu;
 	std::vector<double> empSD;
 	
-	std::vector<int> newMemPlus = std::vector<int>(S, 1);				
-	std::vector<int> newMemMinus = std::vector<int>(S, -1);				
+	std::vector<int> newMemPlus;
+	std::vector<int> newMemMinus;
 	
 	int countAcceptGamma = 0;
 
@@ -363,6 +363,9 @@ public:
 		SetfullFilename(filename);
 		SetHSallFileame(filename);	
 		iniYHSall();
+		newMemPlus = std::vector<int>(S, 1);				
+		newMemMinus = std::vector<int>(S, -1);				
+		
 		thisIter = 0;								
 	}
 	
@@ -567,29 +570,60 @@ public:
 	}
 
 	void iterateOne() {
-		//time_add = 0.0;
-		//time_update = 0.0;
-		//time_delete = 0.0;
+		double time_updateOne;
+		double time_updatePi;
+		double time_updateHSall;
+		double time_updateGamma;
+		double time_appendFile;
 		
+		int start_s;
+		int stop_s;
+		
+		start_s=clock();		
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
 				updateOne(g,s);
 			}
-		}
-		//cout << "time addPara: " << time_add << endl;
-		//cout << "time updateMembership: " << time_update<< endl;
-		//cout << "time deletePara: " << time_delete << endl;
-							 			
+		}		
+		stop_s=clock();
+		time_updateOne = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
 		
-		updatePi();
+		start_s=clock();									 				
+		updatePi();		
+		stop_s=clock();
+		time_updatePi = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+
+		start_s=clock();		
 		updateHSall();	
+		stop_s=clock();
+		time_updateHSall = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+
+		start_s=clock();
 		if(randomGamma == 1){
 			updateGamma();			
 		}
+		stop_s=clock();
+		time_updateGamma = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
 
+		start_s=clock();
 		if(fullRes == 1){appendFile(myStream, thisIter);}
+		stop_s=clock();
+		time_appendFile = (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+
 		thisIter++;
 			
+		cout << "time_updateOne: " << time_updateOne << endl;
+		cout << "time_updatePi: " << time_updatePi<< endl;
+		cout << "time_updateHSall: " << time_updateHSall << endl;
+		cout << "time_updateGamma: " << time_updateGamma << endl;
+		cout << "time_appendFile: " << time_appendFile << endl;
+
+		int totalPara = 0;
+		for(int s=0;s<S;s++){
+			totalPara += getParaLength(s);
+		}
+		cout << "total # para: " << totalPara << endl;		
+		
 	}		
 		
 	void updateOne(int g, int s) {
