@@ -56,6 +56,7 @@ public:
 	// link
 	para *left, *right;
 	indexC * index;
+	indexC * endIndex;
 	
 	para()
 	{
@@ -70,6 +71,7 @@ public:
 		sigma0=asigma0;
 		sigma=asigma;
 		index = new indexC(anum);
+		endIndex = index;		
 		sumZ = aZ;
 		n = 1;		
 		updateTheta();	
@@ -89,12 +91,9 @@ public:
 	
 	void addZ(int anum, double aZ)
 	{		
-		indexC * thisIndex = index;
-		while(thisIndex->right != NULL){
-			thisIndex = thisIndex->right;
-		}
-		thisIndex->right = new indexC(anum);
-		thisIndex->right->left = thisIndex;
+		endIndex->right = new indexC(anum);
+		endIndex->right->left = endIndex;
+		endIndex = endIndex->right;
 		sumZ = sumZ + aZ;
 		n = n + 1;
 		updateTheta();
