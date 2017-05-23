@@ -8,7 +8,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include <random>
-#include <ctime>
+//#include <ctime>
 
 using namespace std;
 
@@ -333,9 +333,9 @@ class bayesMP{
 	
 public:
 	para ** paraObjS;						
-	double time_add;
-	double time_update;
-	double time_delete;
+	//double time_add;
+	//double time_update;
+	//double time_delete;
 	
 	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
 	{
@@ -569,6 +569,7 @@ public:
 	}
 
 	void iterateOne() {
+		/*
 		double time_updateOne;
 		double time_updatePi;
 		double time_updateHSall;
@@ -630,10 +631,26 @@ public:
 		}
 		cout << "total # para: " << totalPara << endl;		
 		cout << "gamma: " << gamma << endl;		
+		*/
+		
+		for(int g=0; g<G; g++){
+			for(int s=0; s<S; s++){
+				updateOne(g,s);
+			}
+		}		
+		updatePi();		
+		updateHSall();	
+		if(randomGamma == 1){
+			updateGamma();			
+		}		
+		if(fullRes == 1){appendFile(myStream, thisIter);}
+		thisIter++;
 		
 	}		
 		
 	void updateOne(int g, int s) {
+		
+		/*		
 		int start_s;
 		int stop_s;
 		
@@ -649,12 +666,12 @@ public:
 		addPara(g, s);
 		stop_s=clock();
 		time_add += (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000;
+		*/
 		
-		/*
+		
 		deletePara(g, s);
 		updateMembership(g ,s);
 		addPara(g, s);
-		*/
 		
 	}
 	
