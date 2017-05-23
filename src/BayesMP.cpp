@@ -717,6 +717,8 @@ public:
 		for(int i=0;i<G*S;i++){
 			myStream << Y[i] << "\t";
 		}
+
+		myStream << gamma;
 				
 	    myStream << endl;
 		if(thisIter==niter-1){myStream.close();}
