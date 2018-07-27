@@ -27,4 +27,3 @@ bayesianQValue <- BayesianFDR(aBeliefVec)
 \author{
 Zhiguang Huo
 }
-

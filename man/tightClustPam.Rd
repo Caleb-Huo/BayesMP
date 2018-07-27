@@ -56,4 +56,3 @@ tightClustResult <- tightClustPam(dissimilarity, target=2, k.min=5)
 \author{
 Chi Song <song.1188@osu.edu>
 }
-

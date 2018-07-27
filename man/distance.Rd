@@ -38,4 +38,3 @@ dissimilarity <- distance(plus, minus, nsample)
 \author{
 Zhiguang Huo
 }
-
