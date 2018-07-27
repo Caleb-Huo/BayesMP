@@ -1,14 +1,17 @@
 Package: BayesMP
 Type: Package
 Title: An R package perform BayesMP
-Version: 0.0.5
-Date: 2015-08-16
+Version: 1.0.0
+Date: 2018-08-01
 Author: Zhiguang Huo
-Maintainer: Zhiguang Huo <zhh18@pitt.edu>
+Maintainer: Zhiguang Huo <zhuo@ufl.edu>
 Description: Implementation by Zhiguang Huo
 License: GPL-3
 Depends: cluster, stats, utils, graphics, qvalue, truncnorm, invgamma, R (>= 2.10.1)
 SystemRequirements: C++11
-Packaged: 2016-08-02 01:12:24 UTC; caleb
+Packaged: 2018-08-01 01:12:24 UTC; caleb
 RoxygenNote: 6.0.1
 NeedsCompilation: no
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

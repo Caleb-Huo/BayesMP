@@ -13,44 +13,51 @@ BayesMP_DP(Z, gamma = NULL, updateGamma = TRUE, beta = 1/2, alpha = 1,
 \arguments{
 \item{Z}{Z statistics. Z should be a p*n matrix.}
 
-\item{gamma}{initial gamma Estimated null proportation.}
+\item{gamma}{initial gamma Estimated null proportation, by default, gamma will be estimated by the emperical null method.}
 
-\item{beta}{Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2}
+\item{updateGamma}{If TRUE, will update gamma by MH method. If FALSE, will keep the gamma as constant.}
 
-\item{alpha}{Concentration parameter for DPs, default=1}
+\item{beta}{Non-informative prior: given a gene is DE, the prior probablity this gene is up-regulated, default=1/2.}
 
-\item{mu0}{Mean parameter for base function, default=0}
+\item{alpha}{Concentration parameter for DPs, default=1.}
 
-\item{sigma0}{sqrt root of variance parameter for base function, default=10}
+\item{mu0}{Mean parameter for base function, default=0.}
 
-\item{sigma}{sqrt root of variance parameter for DP mixture component, default=1}
+\item{sigma0}{sqrt root of variance parameter for base function, default=10.}
 
-\item{trunc}{truncation parameter for base function (For both positive component and negative component), default=0}
+\item{sigma}{sqrt root of variance parameter for DP mixture component, default=1.}
 
-\item{empMu}{a vector of mean parameter for the null component, default is 0.}
+\item{trunc}{truncation parameter for base function (For both positive component and negative component), default=0.}
 
-\item{empSD}{a vector of sd parameter for the null component, default is 1.}
+\item{empMu}{a vector of mean parameter for the null component, default is 0. Alternatively, this vector can by estimated by the emperical null method.}
+
+\item{empSD}{a vector of sd parameter for the null component, default is 1. Alternatively, this vector can by estimated by the emperical null method.}
 
 \item{niter}{Number of iterations. Default 100, suggest to be 10,000}
 
 \item{burnin}{Number of burnin period. Default 50, suggest to be 500}
 
-\item{fileName}{Base fileName for saving fulll mcmc results, hypothesis HS results.}
+\item{silence}{If FALSE (default), will print the MCMC progress in the console.}
 
-\item{randomGamma}{update gamma if true.}
+\item{logDotsPerLine}{Number of dots printed perline in the console when silence is FALSE.}
 
-\item{Pi}{initial pi (DE probablity vector), default rbeta(G, estGamma/(G-estGamma), 1)}
+\item{fileName}{Base fileName for saving fulll mcmc results.}
 
-\item{delta}{initial delta (DE direction probablity vector), default rbeta(G, beta, beta)}
+\item{writeY}{If TRUE, will save all (niter) posterior samples of Y from MCMC.}
 
-\item{Y}{initial component indicator. Y should be a p*n matrix. Y = ..., -2, -1, 0, 1, 2, ...}
+\item{writePi}{If TRUE, will save all (niter) posterior samples of Pi from MCMC.}
 
-\item{fullRes}{binary: 0: do not save full mcmc results; 1: save full mcmc results.}
+\item{writeDelta}{If TRUE, will save all (niter) posterior samples of Delta from MCMC.}
 
-\item{HSall}{binary: 0: do not save hypothesis HS results; 1: save hypothesis HS results.}
+\item{writeGamma}{If TRUE, will save all (niter) posterior samples of Gamma from MCMC.}
+
+\item{writeHSall}{If TRUE, will save the HSall matrix (niter - burnin). Each row of HSall represent a input gene (feature). If the number in the ith column and jth row equals m, 
+it represents there are m posterior samples of Y for feature j that are DE in at least i studies. This matrix will be the input matrix to calculate the Bayesian FDR.
+For example, for each column i, after normalized (divided) by total number effective samples (niter - burnin), it is the Bayesian belief that the genes are significiant in at least i studies.
+The Bayesian FDR can be calculated by the BayesianFDR function.}
 }
 \value{
-computing time
+The MCMC object for the last iteration.
 }
 \description{
 BayesMP_DP
@@ -59,22 +66,22 @@ BayesMP_DP
 implementation for BayesMP, MCMC part. This is a full Bayesian model, and the alternative distribution is modeled via dirichlet process.
 }
 \examples{
-G <- 5000
+set.seed(15213)
+G <- 2000
 K <- 10
 alpha <- 200
 X0 <- matrix(rnorm(G * K), G, K)
-X1 <- matrix(rnorm(G * K, 2), G, K)
-X2 <- matrix(rnorm(G * K, -2), G, K)
+Xplus <- matrix(rnorm(G * K, 2), G, K)
+Xminus <- matrix(rnorm(G * K, -2), G, K)
 piall <- rbeta(G, alpha/G, 1)
 delta <- rbeta(G, 1/2, 1/2)
 p0 <- 1 - piall
 p1 <- piall * delta
 p2 <- piall * (1 - delta)
-Y <- replicate(K, rMultinom(cbind(p0, p1, p2)))
-Z <- X0 * (Y == 1) + X1 * (Y == 2) + X2 * (Y == 3)
-niter <- 2000
-system.time(BayesMP_DP(Z,fullRes=1))
+Y <- replicate(K, apply(cbind(p0, p1, p2),1,function(x) sample(c(0,1,-1),1,prob = x)))
+Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
+system.time(BayesMP_DP(Z,writeHSall=F))
 }
 \author{
-Zhiguang Huo
+Zhiguang Huo <zhuo@ufl.edu>
 }

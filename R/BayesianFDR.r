@@ -5,7 +5,7 @@
 ##' @title Bayesian FDR
 ##' @param belief A posterior belief vector.
 ##' @return Bayesian q-value, which is analog to frequentists' q-value
-##' @author Zhiguang Huo
+##' @author Zhiguang Huo <zhuo@ufl.edu>
 ##' @export
 ##' @examples
 ##' set.seed(15213)
