@@ -243,19 +243,26 @@ class bayesMP{
 	std::vector<int> Y;
 	//int *Y;
 	// whether directly output HSind result and HSall result
-	int fullRes, HSall;
+	int writeY, writePi, writeDelta, writeGamma, writeHSall;
 	// number of mcmc iterations.
 	int niter, burnin;
 	// current iter
 	int thisIter;
-	char * fileFullRes;
-	char * fileHSall;
+	char * file_Y;
+	char * file_Pi;
+	char * file_Delta;
+	char * file_Gamma;
+
 	double MHsd = 0.1;
 	
 	
 	std::vector<int> YHSall;
 	//int *YHSall;
-	ofstream myStream;	
+	ofstream Stream_Y;	
+	ofstream Stream_Pi;	
+	ofstream Stream_Delta;	
+	ofstream Stream_Gamma;	
+	
 	default_random_engine generator;
 	
  	void SetG(int g){
@@ -338,32 +345,47 @@ class bayesMP{
  	void SetnBurnin(int aburnin){
 		burnin = aburnin;
  	}	
-	
- 	void SetfullRes(int afullRes){
-		fullRes = afullRes;
+		
+ 	void SetwriteY(int awriteY){
+		writeY = awriteY;
  	}
 
- 	void SetHSall(int aHSall){
-		HSall = aHSall;
+ 	void SetwritePi(int awritePi){
+		writePi = awritePi;
  	}
-	
+
+ 	void SetwriteDelta(int awriteDelta){
+		writeDelta = awriteDelta;
+ 	}
+
+ 	void SetwriteGamma(int awriteGamma){
+		writeGamma = awriteGamma;
+ 	}
+
+ 	void SetwriteHSall(int awriteHSall){
+		writeHSall = awriteHSall;
+ 	}
 	
 	void iniYHSall(){
 		YHSall = std::vector<int>(G*S, 0);				
 	}
 
-	void SetfullFilename(char *filename){
-	    fileFullRes = new char[strlen(filename)+8];
-	    strcpy(fileFullRes,filename);
-	    strcat(fileFullRes,"Full.txt");		
+	void SetFilename_Y(char *filename){
+		file_Y = filename;
 	}
 
-	void SetHSallFileame(char *filename){
-	    fileHSall = new char[strlen(filename)+9];
-	    strcpy(fileHSall,filename);
-	    strcat(fileHSall,"HSall.txt");		
+	void SetFilename_Pi(char *filename){
+		file_Pi = filename;
 	}
-	
+
+	void SetFilename_Delta(char *filename){
+		file_Delta = filename;
+	}
+
+	void SetFilename_Gamma(char *filename){
+		file_Gamma = filename;
+	}
+
 	void iniBayesMPparaLists(int S){
 		for(int s=0;s<S;s++){
 			bayesMPparaLists.push_back(ParaList());
@@ -376,7 +398,10 @@ public:
 	
 	std::vector<ParaList> bayesMPparaLists;
 		
-	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, char *filename, int *fullRes, int *aHSall)
+	void initialize(int *aG, int *aS, double *aZ, double *agamma, int *randomGamma, double *aempMu, double *aempSD, double *abeta,double *aalpha ,double *amu0, 
+			double *asigma0, double *asigma, double *atrunc, double *api, double *adelta, int *aY, int *niter, int *burnin, 
+			char *fileName_Y, char *fileName_Pi, char *fileName_Delta, char *fileName_Gamma, 
+			int *writeY, int *writePi, int *writeDelta, int *writeGamma, int *writeHSall)
 	{
 		SetG(*aG);
 		SetS(*aS);
@@ -397,17 +422,22 @@ public:
 		SetY(aY);
 		SetnIter(*niter);
 		SetnBurnin(*burnin);
-		SetfullRes(*fullRes);
-		SetHSall(*aHSall);
-		SetfullFilename(filename);
-		SetHSallFileame(filename);	
+		SetFilename_Y(fileName_Y);
+		SetFilename_Pi(fileName_Pi);
+		SetFilename_Delta(fileName_Delta);
+		SetFilename_Gamma(fileName_Gamma);
+		SetwriteY(*writeY);
+		SetwritePi(*writePi);
+		SetwriteDelta(*writeDelta);
+		SetwriteGamma(*writeGamma);
+		SetwriteHSall(*writeHSall);
 		iniYHSall();
 		iniBayesMPparaLists(S);
 		thisIter = 0;								
 	}
-	
-		
+
 	void iniPara(){
+		
 		for(int s=0;s<S;s++){
 			ParaList aparaList = bayesMPparaLists[s];
 			for(int g=0;g<G;g++){
@@ -438,13 +468,13 @@ public:
 				cout << "l = " << l << ". n: " << aparaList.paraList[l].GetN() << endl;
 			}
 			*/
-			cout <<"here 1" << endl;
+			// cout <<"here 1" << endl;
 			aparaList.updateNewMembership(1);
-			cout <<"here 2" << endl;
+			// cout <<"here 2" << endl;
 			aparaList.updateNewMembership(-1);			
-			cout <<"here 3" << endl;
+			// cout <<"here 3" << endl;
 			bayesMPparaLists[s] = aparaList;		
-			cout <<"here 4" << endl;
+			// cout <<"here 4" << endl;
 				
 			/*
 			
@@ -503,14 +533,6 @@ public:
 		}		
 	}	
 
-	char * GetfullFilename(){
-		return(fileFullRes);
-	}
-
-	char * GetHSallFileame(){
-		return(fileHSall);
-	}
-
 	void iterateOne() {
 		for(int g=0; g<G; g++){
 			for(int s=0; s<S; s++){
@@ -519,15 +541,13 @@ public:
 		}		
 		
 		updatePi();
-		updateHSall();	
-		if(randomGamma == 1){
-			updateGamma();			
-		}
-		//cout << "gamma: " << gamma << endl;
+		if(writeHSall==1 && thisIter>=burnin) updateHSall();	
+		if(randomGamma == 1) updateGamma();							
+		if(writeY)	 appendFile_Y();
+		if(writePi)	 appendFile_Pi();
+		if(writeDelta)	 appendFile_Delta();
+		if(writeGamma)	 appendFile_Gamma();
 		
-		if(fullRes == 1){
-			appendFile(myStream, thisIter);
-		}
 		thisIter++;
 	}		
 		
@@ -539,9 +559,6 @@ public:
 	}
 	
 	void updateHSall(){
-		if(thisIter<burnin){
-			return;
-		} 
 		int gY;
 		for(int g=0; g<G; g++){
 			gY = -1;
@@ -566,28 +583,48 @@ public:
 		}		
 		streamHSall.close();
 	}
-
-
-	void appendFile(ofstream& myStream, int thisIter){
-		if(thisIter==0){myStream.open(fileFullRes);}
-		for(int g=0;g<G;g++){
-			myStream << pi[g] << "\t";
+	
+	void appendFile_Y(){
+		if(thisIter==0){
+			Stream_Y.open(file_Y);
 		}
-
-		for(int g=0;g<G;g++){
-			myStream << delta[g] << "\t";
-		}
-
 		for(int i=0;i<G*S;i++){
-			myStream << Y[i] << "\t";
+			Stream_Y << Y[i] << "\t";
 		}
-
-		myStream << gamma;
-				
-	    myStream << endl;
-		if(thisIter==niter-1){myStream.close();}
-		
+	    Stream_Y << endl;
+		if(thisIter==niter-1){Stream_Y.close();}		
 	}
+
+	void appendFile_Pi(){
+		if(thisIter==0){
+			Stream_Pi.open(file_Pi);
+		}
+		for(int i=0;i<G*S;i++){
+			Stream_Pi << pi[i] << "\t";
+		}
+	    Stream_Pi << endl;
+		if(thisIter==niter-1){Stream_Pi.close();}		
+	}
+
+	void appendFile_Delta(){
+		if(thisIter==0){
+			Stream_Delta.open(file_Delta);
+		}
+		for(int i=0;i<G*S;i++){
+			Stream_Delta << delta[i] << "\t";
+		}
+	    Stream_Delta << endl;
+		if(thisIter==niter-1){Stream_Delta.close();}		
+	}
+
+	void appendFile_Gamma(){
+		if(thisIter==0){
+			Stream_Gamma.open(file_Gamma);
+		}
+		Stream_Gamma << gamma << endl;
+		if(thisIter==niter-1){Stream_Gamma.close();}		
+	}
+
 
 	double falp(double x, double mu0, double sigma0, double sigma, double trunc)
 	{
@@ -756,36 +793,33 @@ public:
 	}	
 	
 	bayesMP(){
-		cout<<"hi, I am constructing a BayesMP obj"<<endl;
-	}
-	
-	
-	~bayesMP(){
-		//≤delete [] Z;
-		//delete [] Y;
-		//delete [] pi;
-		//delete [] delta;
-		//delete [] YHSall;
-		delete [] fileFullRes;
-		delete [] fileHSall;
-		cout<<"BayesMP destroyed"<<endl;
-	}
-	
-	
+		// cout<<"hi, I am constructing a BayesMP obj"<<endl;
+	}	
 };
 
-void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char *filename , int *fullRes, int *HSall){
+void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, 
+		double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, 
+		int *silence, int *logDotsPerLine, 
+		char *fileName_Y, char *fileName_Pi, char *fileName_Delta, char *fileName_Gamma, char *fileName_HSall, 
+		int *writeY, int *writePi, int *writeDelta, int *writeGamma, int *writeHSall){
 	
 	bayesMP  mcmcobj;	
-	mcmcobj.initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, filename, fullRes, HSall);
+	mcmcobj.initialize(G,S,Z,gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, 
+			fileName_Y, fileName_Pi, fileName_Delta, fileName_Gamma, 
+			writeY, writePi, writeDelta, writeGamma, writeHSall);
+
 	mcmcobj.iniPara();	
 	
 
 	
 	for(int b=0;b < *niter;b++){
+		if(!*silence){
+			cout << "." << flush;
+			if((b+1) % *logDotsPerLine == 0)
+				cout << b+1 <<endl; 			
+		}
 		mcmcobj.iterateOne();		
 		//mcmcobj->paraSPrint();	
-		cout << "mcmc iter: " << b <<endl;
 		/*
 		for(int s=0;s<3;s++){
 			cout<<"c print study "<< s << "para: " << mcmcobj.bayesMPparaLists[s].getLength()<<endl;					
@@ -795,14 +829,20 @@ void mcmc(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *em
 		*/
 	}
 
-	if(*HSall==1){mcmcobj.outputHSall(mcmcobj.GetHSallFileame());}
-	mcmcobj.printAcceptRate();
+	if(*writeHSall==1){mcmcobj.outputHSall(fileName_HSall);}
+	// mcmcobj.printAcceptRate();
 	//delete mcmcobj;
 }
 
 extern "C" {
-	void mcmc_R3(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, int *niter, int *burnin, char **filename, int *fullRes,int *HSall){
-		mcmc(G, S, Z, gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, *filename, fullRes, HSall);
+	void mcmc_R3(int *G, int *S, double *Z, double *gamma, int *randomGamma, double *empMu, double *empSD, double *beta, double *alpha, 
+		double *mu0, double *sigma0, double *sigma, double *atrunc, double *pi, double *delta, int *Y, 
+		int *niter, int *burnin, int *silence, int *logDotsPerLine,
+		char **fileName_Y, char ** fileName_Pi, char ** fileName_Delta, char ** fileName_Gamma, char ** fileName_HSall,
+		int *writeY, int *writePi, int *writeDelta, int *writeGamma, int *writeHSall){
+		mcmc(G, S, Z, gamma, randomGamma, empMu, empSD, beta, alpha, mu0, sigma0, sigma, atrunc, pi, delta, Y, niter, burnin, silence, logDotsPerLine, 
+		*fileName_Y, *fileName_Pi, *fileName_Delta, *fileName_Gamma, *fileName_HSall, 
+		writeY, writePi, writeDelta, writeGamma, writeHSall);
 	}
 }
 

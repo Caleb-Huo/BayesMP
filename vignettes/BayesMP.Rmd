@@ -1,0 +1,280 @@
+---
+title: "BayesMP tutorial"
+author: "Zhiguang Huo"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+options(stringsAsFactors = F)
+
+```
+
+
+## Introduction
+
+A tutorial to guide through the usage for the BayesMP R package.
+A real data example of the mltiple tissue mouse metabolism data is used.
+The following parts are included:
+
+- How to prepare the input for BayesMP.
+- How to perform MCMC.
+- How to perform Bayesian Hypothesis testing for meta-analysis.
+- How to detect differential expression patterns (metaPattern)
+
+## How to install the package
+
+The package is available on GitHub page ([https://github.com/Caleb-Huo/BayesMP](https://github.com/Caleb-Huo/BayesMP))
+
+To install the package, 
+
+```{r, eval=F}
+library(devtools)
+install_github("Caleb-Huo/BayesMP")
+```
+
+## How to prepare the input for BayesMP.
+
+Note that you may need internet connection to read in the data.
+
+#### How to prepare the input for BayesMP (0), include packages.
+```{r}
+## include necessary packages
+library(BayesMP) ## Include the BayesMP package
+library(limma) ## Will perform differential expression analysis
+library(gplots) ## for heatmap visualization purpose
+```
+
+#### How to prepare the input for BayesMP (i), read in data.
+```{r}
+## read in the data
+
+data_brown <- read.csv("https://bayesmp.github.io/data/mouseMetabolism/data_brown.csv", row.names = 1)
+data_heart <- read.csv("https://bayesmp.github.io/data/mouseMetabolism/data_heart.csv", row.names = 1)
+data_liver <- read.csv("https://bayesmp.github.io/data/mouseMetabolism/data_liver.csv", row.names = 1)
+
+## Verify gene names match across three tissues
+all(rownames(data_brown) == rownames(data_heart))
+all(rownames(data_brown) == rownames(data_liver))
+
+## Combime these three studies as list
+dataExp <- list(brown=data_brown, heart=data_heart, liver=data_liver)
+
+## Check the dimension of the three studies
+sapply(dataExp, dim)
+
+## Check the head of the three studies
+sapply(dataExp, head)
+
+## perform differential expression analysis for each of these three tissues.
+
+## Create an empty matrix to store Z value. 
+## Each row represents a gene and each column represent a study/tissue. 
+## Note that Z value matrix is the input for BayesMP method. 
+## Z value can be calculated by inverse CDF of the p-value from differential expression analysis. 
+## A positive Z value indicates that the gene is upregulated in that study/tissue.
+
+Z <- matrix(0,nrow=nrow(dataExp[[1]]),ncol=length(dataExp))
+rownames(Z) <- rownames(dataExp[[1]])
+colnames(Z) <- names(dataExp)
+```
+
+
+#### How to prepare the input for BayesMP (ii), perform differential expression analysis in each study
+```{r}
+for(s in 1:length(dataExp)){
+	adata <- dataExp[[s]]
+	ControlLabel = grep('wt',colnames(adata))
+	caseLabel = grep('LCAD',colnames(adata))
+	label <- rep(NA, ncol(adata))
+	label[ControlLabel] = 0
+	label[caseLabel] = 1
+	
+	design = model.matrix(~label)	## design matrix
+	fit <- lmFit(adata,design)		## fit limma model
+	fit <- eBayes(fit)		
+	
+	aeffectsize <- fit$coefficients[,2]	## get effect sizes
+	Z[aeffectsize>0,s] <- -qnorm(fit$p.value[aeffectsize>0,2]/2)
+	Z[aeffectsize<0,s] <- qnorm(fit$p.value[aeffectsize<0,2]/2)
+	
+}
+```
+
+#### How to prepare the input for BayesMP (iii), check the head of the input matrix Z.
+
+```{r}
+## checkout top rows of Z
+head(Z)
+```
+
+## BayesMP modeling via MCMC.
+There are two models.
+
+- BayesMP_DP will model the alternative distribution via Dirichlet process.
+- BayesMP_EP will model the alternative distribution via Gaussian distribution.
+
+Theoritically BayesMP_DP will generate better results since the Dirichlet process is a non-parametric model and robust again model perturbations. 
+But in reality, BayesMP_EP will also acheive accurate results with much faster speed.
+
+
+
+```{r}
+## WD <- '~/Desktop/'
+## setwd(WD) ## You can set the working directory here. Some MCMC results will be saved here.
+
+niter <- 1000 ## number of iterations.
+burnin <- 200 ## number of burnin samples. Note the burnin samples will be disgarded.
+
+set.seed(15213)	## set random seed
+
+## writeHSall=T will save the intermediate results for the Bayesian hypothesis testing settings.
+## writeY=T will save the intermediate results for the posterior samples of Y, which is used as the input for metaPattern detection.
+## If you want to track the MCMC samples for other paramters including gamma, Pi, Delta, 
+## One can save these results by set writeGamma, writePi, writeDelta to be TRUE.
+## One can set gamma to be fixed by setting updateGamma = TRUE, if he has a good estimate of initial gamma.
+
+system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY = T, writeHSall=T))
+```
+
+## Task I, meta analysis. There are three hypothesis testing settings.
+
+- Settings $HS_B$ targets biomarkers that are DE in one or more studies:
+    - $\Omega_{B}$: $\Omega_{B}^1 =\{\vec{\theta}_g:  \sum_{s=1}^S\mathbb{I}(\theta_{gs}\ne 0) \ge 1 \}$.
+- Settings $HS_A$ targets biomarkers that are DE in all studies:
+    - $\Omega_{\bar{A}}$: $\Omega_{\bar{A}}^1 =\{\vec{\theta}_g:  \sum_{s=1}^S\mathbb{I}(\theta_{gs}\ne 0)=S \}$.
+- Settings $HS_r$ targets biomarkers that are DE in at least $r$ studies:
+    - $\Omega_{\bar{r}}$: $\Omega_{\bar{r}}^1 =\{\vec{\theta}_g:  \sum_{s=1}^S\mathbb{I}(\theta_{gs}\ne 0)\ge r \}$.
+
+
+```{r}
+HSallRes <- read.table('BayesMP_DP_HSall.txt') ## read in the intermediate results for the Bayesian hypothesis testing
+ 
+## Omega(B)
+HSb_belief <- HSallRes[,1]/(niter - burnin) ## Bayesian belief for Omega(B)
+HSb_qvalue <- BayesianFDR(HSb_belief) ## Bayesian FDR for each gene
+sum(HSb_qvalue<0.05)
+sum(HSb_qvalue<0.01)
+
+
+## Omega(A)
+S <- ncol(Z)
+HSa_belief <- HSallRes[,S]/(niter - burnin) ## Bayesian belief for Omega(A)
+HSa_qvalue <- BayesianFDR(HSa_belief) ## Bayesian FDR for each gene
+sum(HSa_qvalue<0.05)
+
+## Omega(r)
+r <- 2
+HSr_belief <- HSallRes[,r]/(niter - burnin) ## Bayesian belief for Omega(r)
+HSr_qvalue <- BayesianFDR(HSr_belief) ## Bayesian FDR for each gene
+sum(HSr_qvalue<0.05)
+ 
+```
+
+## Task II, differential expression meta-pattern (MetaPattern)
+#### Task II (i), read in MCMC posterior samples
+```{r}
+con  <- file('BayesMP_DP_Y.txt', open = "r")
+
+G <- nrow(Z)
+S <- ncol(Z)
+
+## the resYplus and resYminus matrices are used to save "latent expression"
+resYplus <- matrix(0,G,S)
+resYminus <- matrix(0,G,S)
+
+
+i = 1
+while (length(oneLine <- readLines(con, n = 1, warn = FALSE)) > 0) {
+  if(i>burnin){
+	  #print(i)
+	  seven = strsplit(oneLine, "\t")[[1]]
+	  thisY <- matrix(as.numeric(seven),G,S)
+  	
+	  ## for individual studies
+	  resYplus[thisY>0] <- resYplus[thisY>0] + 1
+	  resYminus[thisY<0] <- resYminus[thisY<0] + 1
+  }    
+  i = i + 1
+} 
+
+close(con)
+```
+
+#### Task II (ii), detect meta pattern. We use the tight clustering algorithm to detect metaPatterns. In fact, one can also use other clustering algorithm to detect gene clusters.
+```{r}
+## we only consider HSb_qvalue<0.01 for the meta-pattern detection
+resYplus_DE <- resYplus[HSb_qvalue<0.01,]
+resYminus_DE <- resYminus[HSb_qvalue<0.01,]
+
+## tight clustering
+dissimilarity <- distance(resYplus_DE, resYminus_DE, niter - burnin) ## calculate dissimilarity matrix for each pair of genes.
+atarget <- 2
+
+## Alternatively, one may try the consensus clustering algorithm to detect gene modules.
+## perform the tight clustering to identify meta-pattern modules. 
+## k.min controls the size of the final meta module. 
+## A small k.min will result in large module size and a large k.min will result in small module size.
+tightClustResult <- tightClustPam(dissimilarity, target=atarget, k.min=20) 
+```
+
+
+#### Task II (iii), visualization
+```{r, fig.show='hold'}
+## visualize the posterior probablity
+
+for(i in 1:atarget){
+	clustSelection <- tightClustResult$cluster == i
+	numS = ncol(resYplus_DE)
+	barData <- cbind(resYplus_DE,resYminus_DE)[clustSelection,]/(niter - burnin)
+	barMean <- colMeans(barData)
+	barSd <- apply(barData,2,sd)
+
+	mp <- barplot(barMean, axes=FALSE, axisnames=FALSE, ylim=c(0, 1.2),
+	              col=c(rep('red',numS), rep('blue',numS)), main=paste('target',i,'\n n =',sum(clustSelection)), 
+				  xlab="Study", ylab="prosterior probablity")
+	axis(1, labels=c(paste(1:numS,"+",sep=''), paste(1:numS,"-",sep='')), at = mp)
+	axis(2, at=seq(0 , 1, by=0.2))
+	 
+	box()
+
+	# Plot the vertical lines of the error bars
+	# The vertical bars are plotted at the midpoints
+	segments(mp, barMean - barSd, mp, barMean + barSd, lwd=2)
+	# Now plot the horizontal bounds for the error bars
+	# 1. The lower bar
+	segments(mp - 0.1, barMean - barSd, mp + 0.1, barMean - barSd, lwd=2)
+	# 2. The upper bar
+	segments(mp - 0.1, barMean + barSd, mp + 0.1, barMean + barSd, lwd=2)
+}
+```
+
+```{r, fig.show='hold'}
+## visualize the heatmap of the first metaPattern module.
+
+for(s in 1:length(dataExp)){
+	adata <- dataExp[[s]]
+	aname <- names(dataExp)[s]
+	bdata <- adata[HSb_qvalue<0.01, ][tightClustResult$cluster == 1 ,]
+	cdata <- as.matrix(bdata)
+	ddata <- t(scale(t(cdata))) ## standardize the data such that for each gene, the mean is 0 and sd is 1.
+
+	ColSideColors <- rep("black", ncol(adata))
+	ColSideColors[grep('LCAD',colnames(adata))] <- "red"
+	
+	heatmap.2(ddata,Rowv = NA,Colv = NA,
+	          na.color="grey", labRow=FALSE, main = aname, 
+	          col = "greenred", trace = "none", ColSideColors = ColSideColors)
+}
+```
+
+

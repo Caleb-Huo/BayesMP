@@ -25,6 +25,5 @@ aBeliefVec <- runif(1000)
 bayesianQValue <- BayesianFDR(aBeliefVec)
 }
 \author{
-Zhiguang Huo
+Zhiguang Huo <zhuo@ufl.edu>
 }
-

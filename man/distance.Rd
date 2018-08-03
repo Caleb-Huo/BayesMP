@@ -36,6 +36,5 @@ minus <- matrix(c(rep(0,G*S),sample(nsample,G*S,replace = TRUE)),2*G,S)
 dissimilarity <- distance(plus, minus, nsample)
 }
 \author{
-Zhiguang Huo
+Zhiguang Huo <zhuo@ufl.edu>
 }
-

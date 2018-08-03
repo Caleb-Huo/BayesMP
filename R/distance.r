@@ -9,7 +9,7 @@
 ##' @param alpha Forge parameter
 ##' @param method Choose one from those: cos, KL, L1, L2, L2_2D, Hellinger.
 ##' @return Dissimilarity matrix. p*p
-##' @author Zhiguang Huo
+##' @author Zhiguang Huo <zhuo@ufl.edu>
 ##' @export
 ##' @examples
 ##' G<-10
