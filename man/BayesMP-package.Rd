@@ -48,9 +48,9 @@ Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
 
 niter=200
 burnin=50
-system.time(BayesMP_EB(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
+system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
 
-HSallRes <- read.table('BayesMP_EB_HSall.txt')
+HSallRes <- read.table('BayesMP_DP_HSall.txt')
 
 
 ## Bayesian inference.
@@ -61,7 +61,7 @@ sum(HSb_qvalue<0.05)
 
 
 ## MetaPattern
-fileNameFull <- 'BayesMP_EB_Y.txt'
+fileNameFull <- 'BayesMP_DP_Y.txt'
 con  <- file(fileNameFull, open = "r")
 
 resYplus <- matrix(0,G,S)

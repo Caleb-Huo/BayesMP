@@ -271,9 +271,9 @@ for(s in 1:length(dataExp)){
 	ColSideColors <- rep("black", ncol(adata))
 	ColSideColors[grep('LCAD',colnames(adata))] <- "red"
 	
-	heatmap.2(ddata,Rowv = NA,Colv = NA,
-	          na.color="grey", labRow=FALSE, main = aname, 
-	          col = "greenred", trace = "none", ColSideColors = ColSideColors)
+	B <- 16
+  redGreenColor <- rgb(c(rep(0, B), (0:B)/B), c((B:0)/16, rep(0, B)), rep(0, 2*B+1))
+	heatmap(ddata,Rowv=NA,ColSideColors=ColSideColors,col= redGreenColor ,scale='none',Colv=NA, main=aname)
 }
 ```
 
