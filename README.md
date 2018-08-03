@@ -28,6 +28,7 @@ https://bayesmp.github.io
 
 ## Short tutorial
 ```R
+library(BayesMP)
 
 ## Simulate data
 set.seed(15213)

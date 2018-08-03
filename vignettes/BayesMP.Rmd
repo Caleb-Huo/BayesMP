@@ -51,7 +51,6 @@ Note that you may need internet connection to read in the data.
 ## include necessary packages
 library(BayesMP) ## Include the BayesMP package
 library(limma) ## Will perform differential expression analysis
-library(gplots) ## for heatmap visualization purpose
 ```
 
 #### How to prepare the input for BayesMP (i), read in data.
