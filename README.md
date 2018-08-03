@@ -7,17 +7,16 @@ R package for Bayes Meta Pattern
 * cluster
 * truncnorm
 * invgamma
-* R (>= 2.10.1)
 
 ## Install This Package from github
 
-* In R console
+* From GitHub
 ```R
 library(devtools)
 install_github("Caleb-Huo/BayesMP")
 ```
 
-* In Bioconductor
+* From Bioconductor
 ```R
 "to be filled in"
 ```
