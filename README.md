@@ -46,9 +46,12 @@ p2 <- piall * (1 - delta)
 Y <- replicate(S, apply(cbind(p0, p1, p2),1,function(x) sample(c(0,1,-1),1,prob = x)))
 Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
 
-## Perform MCMC with Emperical Bayes (EB) method.
+## Perform MCMC with Emperical Bayes (DP) method.
 niter=200
 burnin=50
+
+## Results will be saved in your current working directory. Please set your own working directory using setwd(), if needed.
+
 system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
 
 HSallRes <- read.table('BayesMP_DP_HSall.txt')
