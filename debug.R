@@ -25,9 +25,9 @@ Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
 
 niter=200
 burnin=50
-system.time(BayesMP_EB(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
+system.time(BayesMP(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
 
-HSallRes <- read.table('BayesMP_EB_HSall.txt')
+HSallRes <- read.table('BayesMP_HSall.txt')
 
 
 ## Bayesian inference.
@@ -38,7 +38,7 @@ sum(HSb_qvalue<0.05)
 
 
 ## MetaPattern
-fileNameFull <- 'BayesMP_EB_Y.txt'
+fileNameFull <- 'BayesMP_Y.txt'
 con  <- file(fileNameFull, open = "r")
 
 resYplus <- matrix(0,G,S)
@@ -89,13 +89,13 @@ niter <- 2000
 
 system.time(BayesMP_DP(Z, writeY = T, writePi = T, writeDelta = T, writeGamma = T, writeHSall = T))
 system.time(obj_DP <- BayesMP_DP(Z, writeHSall = F))
-system.time(obj_EB <- BayesMP_EB(Z, writeHSall = F))
-system.time(BayesMP_EB(Z))
+system.time(obj_EB <- BayesMP(Z, writeHSall = F))
+system.time(BayesMP(Z))
 
 
-system.time(BayesMP_EB(Z,writeY = 1, writePi = 1, writeGamma = 1, writeMu = 1, writeS2 = 1, writeHSall = 1, silence = T))
-system.time(BayesMP_EB(Z,writeY = 1, writePi = 1, writeGamma = 1, writeMu = 1, writeS2 = 1, writeHSall = 1))
-system.time(BayesMP_EB(Z))
+system.time(BayesMP(Z,writeY = 1, writePi = 1, writeGamma = 1, writeMu = 1, writeS2 = 1, writeHSall = 1, silence = T))
+system.time(BayesMP(Z,writeY = 1, writePi = 1, writeGamma = 1, writeMu = 1, writeS2 = 1, writeHSall = 1))
+system.time(BayesMP(Z))
 
 
 
@@ -111,7 +111,7 @@ niter=100
 burnin=50
 silence = F
 logDotsPerLine = 50
-fileName='BayesMP_EB_'
+fileName='BayesMP_'
 writeY = 1
 writePi = 1
 writeGamma = 1

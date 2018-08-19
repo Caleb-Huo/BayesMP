@@ -21,6 +21,10 @@ install_github("Caleb-Huo/BayesMP")
 "to be filled in"
 ```
 
+## Citation
+* Zhiguang Huo, Chi Song, George C. Tseng. (2018) Bayesian latent hierarchical model for transcriptomic meta-analysis to detect biomarkers with clustered meta-patterns of differential expression signals. Annals of Applied Statistics (Accepted).
+
+
 ## Full tutorial
 
 https://bayesmp.github.io
@@ -46,15 +50,16 @@ p2 <- piall * (1 - delta)
 Y <- replicate(S, apply(cbind(p0, p1, p2),1,function(x) sample(c(0,1,-1),1,prob = x)))
 Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
 
-## Perform MCMC with Emperical Bayes (DP) method.
+## Perform MCMC for BayesMP.
+## In real application, niter=10000 is suggested.
 niter=200
 burnin=50
 
-## Results will be saved in your current working directory. Please set your own working directory using setwd(), if needed.
+## Please set your own working directory using setwd(), if needed.
+## Two results files "BayesMP_HSall.txt" and "BayesMP_Y.txt" will be saved to the working directory.
+system.time(BayesMP(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
 
-system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY=T, writeHSall=T))
-
-HSallRes <- read.table('BayesMP_DP_HSall.txt')
+HSallRes <- read.table('BayesMP_HSall.txt')
 
 
 ## Bayesian inference.
@@ -65,7 +70,7 @@ sum(HSb_qvalue<0.05)
 
 
 ## MetaPattern
-fileNameFull <- 'BayesMP_DP_Y.txt'
+fileNameFull <- 'BayesMP_Y.txt'
 con  <- file(fileNameFull, open = "r")
 
 resYplus <- matrix(0,G,S)
@@ -96,5 +101,3 @@ dissimilarity <- distance(resYplus_DE, resYminus_DE, niter - burnin)
 tightClustResult <- tightClustPam(dissimilarity, target=2, k.min=10)
 ```
 
-## Citation
-* Zhiguang Huo, Chi Song, George C. Tseng. (2018) Bayesian latent hierarchical model for transcriptomic meta-analysis to detect biomarkers with clustered meta-patterns of differential expression signals. Annals of Applied Statistics (Accepted).

@@ -1,7 +1,7 @@
-##' BayesMP_DP
+##' BayesMP
 ##'
 ##' implementation for BayesMP, MCMC part. This is a full Bayesian model, and the alternative distribution is modeled via dirichlet process.
-##' @title MCMC for BayesMP_DP
+##' @title MCMC for BayesMP
 ##' @param Z Z statistics. Z should be a p*n matrix.
 ##' @param gamma initial gamma Estimated null proportation, by default, gamma will be estimated by the emperical null method.
 ##' @param updateGamma If TRUE, will update gamma by MH method. If FALSE, will keep the gamma as constant.
@@ -45,11 +45,11 @@
 ##' p2 <- piall * (1 - delta)
 ##' Y <- replicate(K, apply(cbind(p0, p1, p2),1,function(x) sample(c(0,1,-1),1,prob = x)))
 ##' Z <- X0 * (Y == 0) + Xplus * (Y == 1) + Xminus * (Y == -1)
-##' system.time(BayesMP_DP(Z,writeHSall=F))
+##' system.time(BayesMP(Z,writeHSall=F))
 
-BayesMP_DP <- function(Z, gamma=NULL, updateGamma = TRUE, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(1,ncol(Z)), 
-		niter=100, burnin=50, silence = F, logDotsPerLine = 50, fileName='BayesMP_DP_', 
-		writeY = F, writePi = F, writeDelta = F, writeGamma = F, writeHSall = T){
+BayesMP <- function(Z, gamma=NULL, updateGamma = TRUE, beta=1/2, alpha=1, mu0=0, sigma0=10, sigma=1, trunc=0, empMu = rep(0,ncol(Z)), empSD = rep(1,ncol(Z)), 
+		niter=100, burnin=50, silence = FALSE, logDotsPerLine = 50, fileName='BayesMP_', 
+		writeY = TRUE, writePi = FALSE, writeDelta = FALSE, writeGamma = FALSE, writeHSall = TRUE){
 			
 	G <- nrow(Z) ## number of genes
 	S <- ncol(Z) ## number of studies

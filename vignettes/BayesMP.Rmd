@@ -46,6 +46,15 @@ library(devtools)
 install_github("Caleb-Huo/BayesMP")
 ```
 
+# How to cite the package
+
+The paper is accepted by the annuals of applied statistics.
+
+- Zhiguang Huo, Chi Song and George Tseng. (2018) Bayesian latent hierarchical model for transcriptomic meta-analysis to detect biomarkers with clustered meta-patterns of differential expression signals. The annals of applied statistics. (Accepted)
+
+The pre-print can be found on ArXiv ([https://arxiv.org/pdf/1707.03301.pdf](https://arxiv.org/pdf/1707.03301.pdf))
+
+
 # How to prepare the input for BayesMP
 
 Note that you may need internet connection to read in the data.
@@ -109,25 +118,19 @@ for(s in 1:length(dataExp)){
 	aeffectsize <- fit$coefficients[,2]	# get effect sizes
 	Z[aeffectsize>0,s] <- -qnorm(fit$p.value[aeffectsize>0,2]/2)
 	Z[aeffectsize<0,s] <- qnorm(fit$p.value[aeffectsize<0,2]/2)
+	## here we obstain the Z score based on the input p-values and the effect size directions.
+	## qnorm is the inverse normal CDF.
+	## Divided by two will convert the two-sided p-value to one-sided p-value
 	
 }
-```
 
-## Check the head of the input matrix Z.
-
-```{r}
-# checkout top rows of Z
 head(Z)
 ```
 
+
 # BayesMP modeling via MCMC
-There are two models.
 
-- BayesMP_DP will model the alternative distribution via Dirichlet process.
-- BayesMP_EP will model the alternative distribution via Gaussian distribution.
-
-Theoritically BayesMP_DP will generate better results since the Dirichlet process is a non-parametric model and robust again model perturbations. 
-But in reality, BayesMP_EP will also acheive accurate results with much faster speed.
+BayesMP will model the alternative distribution via Dirichlet process, which is a non-parametric model and robust again model perturbations. 
 
 
 
@@ -146,7 +149,7 @@ set.seed(15213)	# set random seed
 # One can save these results by set writeGamma, writePi, writeDelta to be TRUE.
 # One can set gamma to be fixed by setting updateGamma = TRUE, if he has a good estimate of initial gamma.
 
-system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY = T, writeHSall=T))
+system.time(BayesMP(Z,niter=niter, burnin=burnin, writeY = TRUE, writeHSall=TRUE))
 ```
 
 # Task I, meta analysis. There are three hypothesis testing settings.
@@ -160,7 +163,7 @@ system.time(BayesMP_DP(Z,niter=niter, burnin=burnin, writeY = T, writeHSall=T))
 
 
 ```{r}
-HSallRes <- read.table('BayesMP_DP_HSall.txt') # read in the intermediate results for the Bayesian hypothesis testing
+HSallRes <- read.table('BayesMP_HSall.txt') # read in the intermediate results for the Bayesian hypothesis testing
  
 # Omega(B)
 HSb_belief <- HSallRes[,1]/(niter - burnin) # Bayesian belief for Omega(B)
@@ -186,7 +189,7 @@ sum(HSr_qvalue<0.05)
 # Task II, differential expression meta-pattern (MetaPattern)
 ## Read in MCMC posterior samples
 ```{r}
-con  <- file('BayesMP_DP_Y.txt', open = "r")
+con  <- file('BayesMP_Y.txt', open = "r")
 
 G <- nrow(Z)
 S <- ncol(Z)
