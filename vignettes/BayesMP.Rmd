@@ -138,8 +138,10 @@ BayesMP will model the alternative distribution via Dirichlet process, which is 
 # WD <- '~/Desktop/'
 # setwd(WD) # You can set the working directory here. Some MCMC results will be saved here.
 
-niter <- 1000 # number of iterations.
+niter <- 1000 # number of iterations
+# In real application, niter=10000 is suggested.
 burnin <- 200 # number of burnin samples. Note the burnin samples will be disgarded.
+# In real application, burnin=500 is suggested.
 
 set.seed(15213)	# set random seed
 

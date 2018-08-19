@@ -23,7 +23,7 @@ install_github("Caleb-Huo/BayesMP")
 
 ## Citation
 * Zhiguang Huo, Chi Song, George C. Tseng. (2018) Bayesian latent hierarchical model for transcriptomic meta-analysis to detect biomarkers with clustered meta-patterns of differential expression signals. Annals of Applied Statistics (Accepted).
-
+* Arxiv preprint can be find here: https://arxiv.org/pdf/1707.03301.pdf
 
 ## Full tutorial
 
